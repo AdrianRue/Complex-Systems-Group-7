@@ -27,7 +27,7 @@ class Agent:
         # Choose the direction with the highest density
         max_density_dir = max(densities, key=densities.get)
 
-        return max_density_dir
+        return directions[max_density_dir]
 
 
 class CellularAutomaton:
@@ -95,23 +95,7 @@ class CellularAutomaton:
 
                     # Determine direction to move
                     direction = agent.move(self.get_density, i, j, self.size)
-                    # Determine new position based on direction
-                    if direction == 'up':
-                        new_i, new_j = (i - 1) % self.size, j
-                    elif direction == 'down':
-                        new_i, new_j = (i + 1) % self.size, j
-                    elif direction == 'left':
-                        new_i, new_j = i, (j - 1) % self.size
-                    elif direction == 'right':
-                        new_i, new_j = i, (j + 1) % self.size
-                    elif direction == 'up-left':
-                        new_i, new_j = ((i - 1) % self.size, (j - 1) % self.size)
-                    elif direction == 'up-right':
-                        new_i, new_j = ((i - 1) % self.size, (j + 1) % self.size)
-                    elif direction == 'down-left':
-                        new_i, new_j = ((i + 1) % self.size, (j - 1) % self.size)
-                    else:   #down-right
-                        new_i, new_j = ((i + 1) % self.size, (j + 1) % self.size)
+                    new_i, new_j = direction
 
                     # Swap agents if the new position is in state 0
                     if newGrid[new_i, new_j].state == 0:
