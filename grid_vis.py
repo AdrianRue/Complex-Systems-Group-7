@@ -7,6 +7,7 @@ import random
 class Agent:
     def __init__(self, state):
         self.state = state
+        self.group = None
 
     def move(self, get_density_func, i, j, size):
         directions = {
@@ -33,6 +34,7 @@ class CellularAutomaton:
     def __init__(self, size, agent_probs):
         self.size = size
         self.grid = np.array([[Agent(state) for state in row] for row in np.random.choice([0, 1], size*size, p=agent_probs).reshape(size, size)])
+        self.groups = {}
 
     def get_density(self, i, j, radius=3):
         density = 0
@@ -40,18 +42,58 @@ class CellularAutomaton:
             for dj in range(-radius, radius + 1):
                 if di == 0 and dj == 0:
                     continue  # Skip the current cell
-                # Ensure we wrap around the grid boundaries
-                ni, nj = (i + di) % self.size, (j + dj) % self.size
-                if self.grid[ni, nj].state != 0:
+
+                # If outside the grid go to next
+                if i + di < 0 or i + di >= self.size or j + dj < 0 or j + dj >= self.size:
+                    continue
+
+                if self.grid[i + di, j + dj].state != 0:
                     density += 1
         return density
+
+    def has_neighbor(self, i, j, state):
+        # Get neighbors
+        for di in range(-1, 2):
+            for dj in range(-1, 2):
+                if di == 0 and dj == 0:
+                    continue
+                if di != 0 and dj != 0:
+                    continue
+                # Ensure we wrap around the grid boundaries
+                ni, nj = (i + di) % self.size, (j + dj) % self.size
+
+                if self.grid[ni, nj].state == state:
+                    return self.grid[ni, nj]
+        return None
+
+
 
     def update(self, frame):
         newGrid = np.copy(self.grid)
         for i in range(self.size):
             for j in range(self.size):
                 agent = self.grid[i, j]
-                if agent.state != 0:  # Only move agents that are not in state 0
+                if agent.state == 1:  # Only move agents that are in state 1
+                    # Check if next to a neighbor in state 1
+                    neighbour = self.has_neighbor(i, j, 1)
+                    if neighbour is not None:
+                        newGrid[i, j].state = 2
+
+                        # Get group number for key
+                        key = len(self.groups.keys())
+                        newGrid[i, j].group = key
+                        self.groups[key] = [(i, j)]
+                        continue
+
+                    # Check if next to a neighbor in state 2
+                    neighbour = self.has_neighbor(i, j, 2)
+                    if neighbour is not None:
+                        newGrid[i, j].state = 2
+                        newGrid[i, j].group = neighbour.group
+                        self.groups[neighbour.group].append((i, j))
+                        continue
+
+                    # Determine direction to move
                     direction = agent.move(self.get_density, i, j, self.size)
                     # Determine new position based on direction
                     if direction == 'up':
@@ -86,7 +128,7 @@ class CellularAutomaton:
 N = 50
 
 # Initialize the cellular automaton
-automaton = CellularAutomaton(N, [0.95, 0.05])
+automaton = CellularAutomaton(N, [0.90, 0.1])
 
 # Set up the figure for visualization
 fig, ax = plt.subplots()
@@ -98,5 +140,5 @@ def update(frame):
     mat.set_data(automaton.update(frame))
     return [mat]
 
-ani = animation.FuncAnimation(fig, update, interval=250, save_count=50)
+ani = animation.FuncAnimation(fig, update, interval=1000, save_count=50)
 plt.show()
