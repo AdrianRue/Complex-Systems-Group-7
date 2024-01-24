@@ -24,16 +24,29 @@ class Agent:
         # Calculate densities for each direction
         densities = {dir: get_density_func(pos[0], pos[1]) for dir, pos in directions.items()}
 
-        # Choose the direction with the highest density
-        max_density_dir = max(densities, key=densities.get)
+        # Compute sum of densities
+        density_sum = sum(densities.values())
 
-        return directions[max_density_dir]
+        # Density has to be non-zero
+        if density_sum != 0:
+            # Compute probabilities for each direction
+            probabilities = [density / density_sum for density in densities.values()]
+
+            # Choose direction based on probabilities
+            direction = np.random.choice(list(directions.keys()), p=probabilities)
+
+        # If density is zero, choose random direction
+        else:
+            direction = np.random.choice(list(directions.keys()))
+
+        return directions[direction]
+
 
 
 class CellularAutomaton:
     def __init__(self, size, agent_probs):
         self.size = size
-        self.grid = np.array([[Agent(state) for state in row] for row in np.random.choice([0, 1], size*size, p=agent_probs).reshape(size, size)])
+        self.grid = np.array([[Agent(state) for state in row] for row in np.random.choice([0, 1], size*size, p=agent_probs).reshape(size, size)], dtype=Agent)
         self.groups = {}
 
     def get_density(self, i, j, radius=3):
@@ -105,14 +118,14 @@ class CellularAutomaton:
         return self.get_grid_states()
 
     def get_grid_states(self):
-        return np.array([[agent.state for agent in row] for row in self.grid])
+        return np.array([[agent.state * 50 for agent in row] for row in self.grid])
 
 
 # Grid size
 N = 50
 
 # Initialize the cellular automaton
-automaton = CellularAutomaton(N, [0.90, 0.1])
+automaton = CellularAutomaton(N, [0.9, 0.1])
 
 # Set up the figure for visualization
 fig, ax = plt.subplots()
@@ -124,5 +137,5 @@ def update(frame):
     mat.set_data(automaton.update(frame))
     return [mat]
 
-ani = animation.FuncAnimation(fig, update, interval=1000, save_count=50)
+ani = animation.FuncAnimation(fig, update, interval=500, save_count=50)
 plt.show()
