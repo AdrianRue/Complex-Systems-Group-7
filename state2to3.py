@@ -10,6 +10,8 @@ class Agent:
         self.state = state
         self.group = None
         self.days_proto = 0
+        self.days_star = 0
+        self.days_dissipating = 0
 
     def move(self, get_density_func, i, j, size):
         directions = {
@@ -21,6 +23,40 @@ class Agent:
             'up-right': ((i - 1) % size, (j + 1) % size),
             'down-left': ((i + 1) % size, (j - 1) % size),
             'down-right': ((i + 1) % size, (j + 1) % size)
+        }
+
+        # Calculate densities for each direction
+        densities = {dir: get_density_func(pos[0], pos[1]) for dir, pos in directions.items()}
+
+        # Compute sum of densities
+        density_sum = sum(densities.values())
+
+        # Density has to be non-zero
+        if density_sum != 0:
+            # Compute probabilities for each direction
+            probabilities = [density / density_sum for density in densities.values()]
+
+            # Choose direction based on probabilities
+            direction = np.random.choice(list(directions.keys()), p=probabilities)
+
+        # If density is zero, choose random direction
+        else:
+            direction = np.random.choice(list(directions.keys()))
+
+        return directions[direction]
+    
+    def dissipate(self, get_density_func, i, j, size):
+
+        # This is simply a reverse of the directions to move away from the clump of mass, couldn't think of a better way atm
+        directions = {
+            'up': ((i + 1) % size, j),
+            'down': ((i - 1) % size, j),
+            'left': (i, (j + 1) % size),
+            'right': (i, (j - 1) % size),
+            'up-left': ((i + 1) % size, (j + 1) % size),
+            'up-right': ((i + 1) % size, (j - 1) % size),
+            'down-left': ((i - 1) % size, (j + 1) % size),
+            'down-right': ((i - 1) % size, (j - 1) % size)
         }
 
         # Calculate densities for each direction
@@ -219,16 +255,47 @@ class CellularAutomaton:
                     # Count number of days star has been in proto state
                     agent.days_proto += 1
 
+                    # Transform proto star into star after long enough
                     if agent.days_proto > 10:
 
-                        agent.state == 4
+                        agent.days_proto = 0
+                        agent.state = 4
+
+
+                elif agent.state == 4:
+                    
+                    agent.days_star += 1
+                    #after a while, star dies out and parts turn into dissipating gas
+                    if agent.days_star > 15:
+                        
+                        agent.days_star = 0
+                        agent.state = 5
+
+                elif agent.state == 5:
+
+                    if agent.days_dissipating < 5:
+                        direction = agent.dissipate(self.get_density, i, j, self.size)
+                        new_i, new_j = direction
+
+                        if newGrid[new_i, new_j].state == 0:
+                            newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+
+                        agent.days_dissipating += 1
+                    else:
+                        agent.state = 1
+                        agent.days_dissipating = 0
+
+                    
+                
+
+
+
 
                 
 
 
 
-        for group in range(len(self.groups)):
-            print(len(self.groups[group]))
+
 
 
         self.grid = newGrid
@@ -240,10 +307,10 @@ class CellularAutomaton:
 
 
 # Grid size
-N = 50
+N = 100
 
 # Initialize the cellular automaton
-automaton = CellularAutomaton(N, [0.9, 0.1])
+automaton = CellularAutomaton(N, [0.7, 0.3])
 
 # Define colors for each state
 colors = {0: 'white',  # Color for state 0
