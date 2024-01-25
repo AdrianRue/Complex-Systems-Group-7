@@ -255,6 +255,10 @@ class CellularAutomaton:
                     # Count number of days star has been in proto state
                     agent.days_proto += 1
 
+                    ###
+                    # Need to add addition of gas particles into proto 
+                    ###
+
                     # Transform proto star into star after long enough
                     if agent.days_proto > 10:
 
@@ -266,6 +270,10 @@ class CellularAutomaton:
                     
                     agent.days_star += 1
                     #after a while, star dies out and parts turn into dissipating gas
+
+                    ###
+                    # Need to add repulsion factor for other incoming gas particles
+                    ###
                     if agent.days_star > 15:
                         
                         agent.days_star = 0
