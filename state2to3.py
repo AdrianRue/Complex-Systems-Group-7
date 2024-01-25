@@ -8,6 +8,7 @@ class Agent:
     def __init__(self, state):
         self.state = state
         self.group = None
+        self.days_proto = 0
 
     def move(self, get_density_func, i, j, size):
         directions = {
@@ -211,6 +212,22 @@ class CellularAutomaton:
                     new_i, new_j = direction
                     if newGrid[new_i, new_j].state == 0:
                         newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+
+                
+                elif agent.state == 3:
+                    # Count number of days star has been in proto state
+                    agent.days_proto += 1
+
+                    if agent.days_proto > 10:
+
+                        agent.state == 4
+
+                
+
+
+
+        for group in range(len(self.groups)):
+            print(len(self.groups[group]))
 
 
         self.grid = newGrid
