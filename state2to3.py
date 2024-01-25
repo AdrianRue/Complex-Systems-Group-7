@@ -3,15 +3,15 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import random
 import matplotlib.colors as mcolors
+from Group import Group
 
 
 class Agent:
     def __init__(self, state):
         self.state = state
         self.group = None
-        self.days_proto = 0
-        self.days_star = 0
-        self.days_dissipating = 0
+        self.position = None
+        
 
     def move(self, get_density_func, i, j, size):
         directions = {
@@ -45,6 +45,10 @@ class Agent:
 
         return directions[direction]
     
+
+
+
+
     def dissipate(self, get_density_func, i, j, size):
 
         # This is simply a reverse of the directions to move away from the clump of mass, couldn't think of a better way atm
@@ -102,6 +106,7 @@ class CellularAutomaton:
                     density += 1
         return density
 
+# -----------------------------------------------------------------
     def has_neighbor(self, i, j, state):
         # Get neighbors
         for di in range(-1, 2):
@@ -116,76 +121,8 @@ class CellularAutomaton:
                 if self.grid[ni, nj].state == state:
                     return self.grid[ni, nj]
         return None
+# -----------------------------------------------------------------
 
-    # def count_state2_in_region(self, i, j, radius=1):
-    #     count = 0
-    #     for di in range(-radius, radius + 1):
-    #         for dj in range(-radius, radius + 1):
-    #             # Skip the current cell
-    #             if di == 0 and dj == 0:
-    #                 continue
-    #             # Ensure we wrap around the grid boundaries
-    #             ni, nj = (i + di) % self.size, (j + dj) % self.size
-    #             if self.grid[ni, nj].state == 2:
-    #                 count += 1
-    #     return count
-
-    # def update(self, frame):
-        newGrid = np.copy(self.grid)
-        for i in range(self.size):
-            for j in range(self.size):
-                agent = self.grid[i, j]
-                if agent.state == 1:    # Only move agents that are in state 1
-                    # Check if next to a neighbor in state 1
-                    neighbour = self.has_neighbor(i, j, 1)
-                    if neighbour is not None:
-                        newGrid[i, j].state = 2
-                        # If the count of state 2 is 19, change to state 3
-                        if self.count_state2_in_region(i, j) == 19:
-                            newGrid[i, j].state = 3
-                        else:
-                            newGrid[i, j].state = 2
-                        continue
-
-                    # Check if next to a neighbor in state 2
-                    neighbour = self.has_neighbor(i, j, 2)
-                    if neighbour is not None:
-                        newGrid[i, j].state = 2
-                        # If the count of state 2 is 19, change to state 3
-                        if self.count_state2_in_region(i, j) == 19:
-                            newGrid[i, j].state = 3
-                        else:
-                            newGrid[i, j].state = 2
-
-                        newGrid[i, j].group = neighbour.group
-                        self.groups[neighbour.group].append((i, j))
-                        continue
-                    
-                    # Determine direction to move
-                    direction = agent.move(self.get_density, i, j, self.size)
-                    new_i, new_j = direction
-
-                    # Swap agents if the new position is in state 0
-                    if newGrid[new_i, new_j].state == 0:
-                        newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-
-
-                # Process state 2 agents
-                elif agent.state == 2:
-                    # Check if the count of state 2 agents is 19, change to state 3
-                    if self.count_state2_in_region(i, j) == 19:
-                        newGrid[i, j].state = 3
-                    else:
-                        # Determine direction to move
-                        direction = agent.move(self.get_density, i, j, self.size)
-                        new_i, new_j = direction
-
-                        # Swap agents if the new position is in state 0
-                        if newGrid[new_i, new_j].state == 0:
-                            newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-
-        self.grid = newGrid
-        return self.get_grid_states()
     def count_state2_in_region(self, i, j, radius=3):
         count = 0
         for di in range(-radius, radius + 1):

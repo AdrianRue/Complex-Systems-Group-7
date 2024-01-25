@@ -99,6 +99,20 @@ class CellularAutomaton:
         return neighbour_list
 
 
+    def count_state2_in_region(self, i, j, radius=3):
+        count = 0
+        for di in range(-radius, radius + 1):
+            for dj in range(-radius, radius + 1):
+                # Skip the current cell
+                if di == 0 and dj == 0:
+                    continue
+                # Ensure we wrap around the grid boundaries
+                ni, nj = (i + di) % self.size, (j + dj) % self.size
+                if self.grid[ni, nj].state == 2:
+                    count += 1
+        return count
+
+
     def update(self, frame):
         # Moving all agents in state 1
         newGrid = np.copy(self.grid)
@@ -119,6 +133,7 @@ class CellularAutomaton:
         # Update grid
         self.grid = newGrid
 
+        Flag = False
         # Check if any agents are next to each other
         for i in range(self.size):
             for j in range(self.size):
@@ -141,10 +156,19 @@ class CellularAutomaton:
                                     self.groups[len(self.groups.keys())] = newGroup
 
                                     # Update state of current agent
-                                    agent.state = 2
+                                    # If the count of state 2 in the region is 19, change to state 3
+                                    if self.count_state2_in_region(i, j) >= 19:
+                                        agent.state = 3
+                                        Flag = True
+                                    else:
+                                        agent.state = 2
 
                                 # Add neighbour to group
-                                neighbourAgent.state = 2
+                                if Flag:
+                                    neighbourAgent.state = 3
+                                else:
+                                    neighbourAgent.state = 2
+
                                 neighbourAgent.group = newGroup
                                 newGroup.append(neighbourAgent)
 
@@ -164,7 +188,11 @@ class CellularAutomaton:
                     for (neighbourAgent, neighbourPosition) in neighbour:
                         if neighbourAgent.state == 1:
                             # Add neighbor to group
-                            neighbourAgent.state = 2
+                            if self.count_state2_in_region(i, j) == 19:
+                                neighbourAgent.state = 3
+                            else:
+                                neighbourAgent.state = 2
+                            
                             neighbourAgent.group = agent.group
                             agent.group.append(neighbourAgent)
 
@@ -181,6 +209,7 @@ class CellularAutomaton:
         #         self.grid[newPosition] = self.grid[oldPosition]
 
         return self.get_grid_states()
+
 
     def get_grid_states(self):
         return np.array([[agent.state / 5 for agent in row] for row in self.grid])
