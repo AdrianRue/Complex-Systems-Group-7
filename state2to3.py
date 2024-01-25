@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import random
+import matplotlib.colors as mcolors
 
 
 class Agent:
@@ -243,6 +244,15 @@ N = 50
 
 # Initialize the cellular automaton
 automaton = CellularAutomaton(N, [0.9, 0.1])
+
+# Define colors for each state
+colors = {0: 'white',  # Color for state 0
+          1: 'blue',   # Color for state 1
+          2: 'red',    # Color for state 2
+          3: 'green'}  # Color for state 3
+
+# Create a color map from the defined colors
+cmap = mcolors.ListedColormap([colors[i] for i in range(len(colors))])
 
 # Set up the figure for visualization
 fig, ax = plt.subplots()
