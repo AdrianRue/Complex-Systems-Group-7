@@ -27,6 +27,7 @@ class Agent:
 
         # Calculate densities for each direction
         densities = {dir: get_density_func(pos[0], pos[1]) for dir, pos in directions.items()}
+        # print("Densities:", densities)  # Debug statement
 
         # Compute sum of densities
         density_sum = sum(densities.values())
@@ -34,15 +35,16 @@ class Agent:
         # Density has to be non-zero
         if density_sum != 0:
             # Compute probabilities for each direction
-            probabilities = [density / density_sum for density in densities.values()]
+            probabilities = {dir: density / density_sum for dir, density in densities.items()}
+            # print("Probabilities:", probabilities)  # Debug statement
 
             # Choose direction based on probabilities
-            direction = np.random.choice(list(directions.keys()), p=probabilities)
-
-        # If density is zero, choose random direction
+            direction = np.random.choice(list(directions.keys()), p=list(probabilities.values()))
         else:
+            # If density is zero, choose random direction
             direction = np.random.choice(list(directions.keys()))
 
+        # print("Chosen direction:", direction)  # Debug statement
         return directions[direction]
     
 
@@ -94,16 +96,15 @@ class CellularAutomaton:
         # Get neighbors
         for di in range(-radius, radius + 1):
             for dj in range(-radius, radius + 1):
+
                 # Skip the current cell
                 if di == 0 and dj == 0:
                     continue
 
                 # Ensure we wrap around the grid boundaries
                 ni, nj = (i + di) % self.size, (j + dj) % self.size
-
-                if self.grid[ni, nj] != 0:
-                    density += 1
-
+                if self.grid[ni, nj].state != 0:
+                    density += self.grid[ni, nj].state
         return density
 
     def neighbours(self, i, j, radius, states=[1,2,3]):
@@ -252,10 +253,10 @@ class CellularAutomaton:
 
 
 # Grid size
-N = 100
+N = 50
 
 # Initialize the cellular automaton
-automaton = CellularAutomaton(N, [0.8, 0.2])
+automaton = CellularAutomaton(N, [0.9, 0.1])
 
 # Define colors for each state
 colors = {0: 'white',  # Color for state 0
