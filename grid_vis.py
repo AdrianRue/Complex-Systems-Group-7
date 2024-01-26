@@ -61,7 +61,7 @@ class Agent:
         }
 
         # Calculate densities for each direction
-        densities = {dir: get_density_func(pos[0], pos[1]) for dir, pos in directions.items()}
+        densities = {dir: get_density_func(pos[0], pos[1], 3, [4]) for dir, pos in directions.items()}
 
         # Compute sum of densities
         density_sum = sum(densities.values())
@@ -209,7 +209,7 @@ class CellularAutomaton:
                     ###
 
                     # Transform proto star into star after long enough
-                    if agent.steps_proto > 10:
+                    if agent.steps_proto > 20:
 
                         agent.steps_proto = 0
                         agent.state = 3
@@ -223,24 +223,24 @@ class CellularAutomaton:
                     ###
                     # Need to add repulsion factor for other incoming gas particles
                     ###
-                    if agent.steps_star > 15:
+                    if agent.steps_star > 25:
 
                         agent.steps_star = 0
                         agent.state = 4
 
-                # elif agent.state == 4:
-                #
-                #     if agent.steps_dissipating < 10:
-                #         direction = self.dissipate(self.get_density, i, j, self.size)
-                #         new_i, new_j = direction
-                #
-                #         if newGrid[new_i, new_j].state == 0:
-                #             newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-                #
-                #         agent.steps_dissipating += 1
-                #     else:
-                #         agent.state = 1
-                #         agent.steps_dissipating = 0
+                elif agent.state == 4:
+                
+                    if agent.steps_dissipating < 15:
+                        direction = agent.dissipate(self.get_density, i, j, self.size)
+                        new_i, new_j = direction
+                
+                        if newGrid[new_i, new_j].state == 0:
+                            newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+                
+                        agent.steps_dissipating += 1
+                    else:
+                        agent.state = 1
+                        agent.steps_dissipating = 0
 
 
         return self.get_grid_states()
@@ -251,16 +251,17 @@ class CellularAutomaton:
 
 
 # Grid size
-N = 100
+N = 50
 
 # Initialize the cellular automaton
 automaton = CellularAutomaton(N, [0.8, 0.2])
 
 # Define colors for each state
 colors = {0: 'white',  # Color for state 0
-          1: 'blue',   # Color for state 1
-          2: 'red',    # Color for state 2
-          3: 'green'}  # Color for state 3
+          1: 'green',   # Color for state 1
+          2: 'yellow',    # Color for state 2
+          3: 'orange',   # Color for state 3
+          4: 'blue'}  
 
 # Create a color map from the defined colors
 cmap = mcolors.ListedColormap([colors[i] for i in range(len(colors))])
