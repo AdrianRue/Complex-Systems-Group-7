@@ -11,6 +11,9 @@ class Agent:
         self.state = state
         self.group = None
         self.position = None
+        self.steps_proto = 0
+        self.steps_star = 0
+        self.steps_dissipating = 0
         
 
     def move(self, get_density_func, i, j, size):
@@ -190,7 +193,7 @@ class CellularAutomaton:
                 
                 elif agent.state == 3:
                     # Count number of days star has been in proto state
-                    agent.days_proto += 1
+                    agent.steps_proto += 1
 
                     ###
                     # Need to add addition of gas particles into proto 
@@ -205,7 +208,7 @@ class CellularAutomaton:
 
                 elif agent.state == 4:
                     
-                    agent.days_star += 1
+                    agent.steps_star += 1
                     #after a while, star dies out and parts turn into dissipating gas
 
                     ###
@@ -218,7 +221,7 @@ class CellularAutomaton:
 
                 elif agent.state == 5:
 
-                    if agent.days_dissipating < 5:
+                    if agent.steps_dissipating < 5:
                         direction = agent.dissipate(self.get_density, i, j, self.size)
                         new_i, new_j = direction
 
