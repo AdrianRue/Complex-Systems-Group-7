@@ -189,7 +189,7 @@ class CellularAutomaton:
                     if agent.steps_proto > 10:
 
                         agent.steps_proto = 0
-                        agent.state = 4
+                        agent.state = 3
 
 
                 elif agent.state == 3:
@@ -203,35 +203,21 @@ class CellularAutomaton:
                     if agent.steps_star > 15:
 
                         agent.steps_star = 0
-                        agent.state = 5
+                        agent.state = 4
 
-                # elif agent.state == 4:
-                #
-                #     if agent.steps_dissipating < 5:
-                #         direction = self.dissipate(self.get_density, i, j, self.size)
-                #         new_i, new_j = direction
-                #
-                #         if newGrid[new_i, new_j].state == 0:
-                #             newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-                #
-                #         agent.steps_dissipating += 1
-                #     else:
-                #         agent.state = 1
-                #         agent.steps_dissipating = 0
-                #
-                #         # In state 2
-                #         if neighbourAgent.state == 2:
-                #             if neighbourAgent.group is None:
-                #                 neighbourAgent.state = 1
-                #                 continue
-                #
-                #             # Merge groups
-                #             if neighbourAgent.group != agent.group:
-                #                 agent.group + neighbourAgent.group
-                #
-                #                 # Update group key of agents in group2
-                #                 for groupAgent in neighbourAgent.group.agents:
-                #                     groupAgent.group = agent.group
+                elif agent.state == 4:
+                
+                    if agent.steps_dissipating < 10:
+                        direction = self.dissipate(self.get_density, i, j, self.size)
+                        new_i, new_j = direction
+                
+                        if newGrid[new_i, new_j].state == 0:
+                            newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+                
+                        agent.steps_dissipating += 1
+                    else:
+                        agent.state = 1
+                        agent.steps_dissipating = 0
 
 
         return self.get_grid_states()
