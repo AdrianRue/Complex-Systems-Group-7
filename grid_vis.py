@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from Group import Group
+import matplotlib.colors as mcolors
 
 
 class Agent:
@@ -87,57 +87,35 @@ class CellularAutomaton:
         self.grid = np.array([[Agent(state) for state in row] for row in np.random.choice([0, 1], size*size, p=agent_probs).reshape(size, size)], dtype=Agent)
         self.groups = {}
 
-    def get_density(self, i, j, radius=3):
-        density = 0
-        for di in range(-radius, radius + 1):
-            for dj in range(-radius, radius + 1):
-                if di == 0 and dj == 0:
-                    continue  # Skip the current cell
+    def get_density(self, i, j, radius=3, states=[1, 2, 3]):
 
-                # If outside the grid go to next
-                if i + di < 0 or i + di >= self.size or j + dj < 0 or j + dj >= self.size:
-                    continue
+        return len(self.neighbours(i, j, radius, states))
 
-                if self.grid[i + di, j + dj].state != 0:
-                    density += 1 / (di**2 + dj**2)
-        return density
-
-    def neighbours(self, i, j):
+    def neighbours(self, i, j, radius, states=[1,2,3]):
         # List with neighbours
         neighbour_list = []
 
         # Get neighbors
-        for di in range(-1, 2):
-            # Outside the grid
-            if i + di < 0 or i + di == self.size:
-                continue
-            for dj in range(-1, 2):
-                # Outside the grid
-                if j + dj < 0 or j + dj == self.size:
-                    continue
-
+        for di in range(-radius, radius + 1):
+            for dj in range(-radius, radius + 1):
                 # Skip the current cell
                 if di == 0 and dj == 0:
                     continue
 
-                # Skip diagonal cells
-                if di != 0 and dj != 0:
-                    continue
-
-                # Neighbor position
-                ni, nj = i + di, j + dj
+                # Ensure we wrap around the grid boundaries
+                ni, nj = (i + di) % self.size, (j + dj) % self.size
 
                 # Get neighbor
                 neighbour = self.grid[ni, nj]
 
                 # Check if neighbor is in state
-                if neighbour.state != 0:
+                if neighbour.state in states:
                     neighbour_list.append((neighbour, (ni, nj)))
 
         return neighbour_list
 
 
-    def count_state2_in_region(self, i, j, radius=3):
+    def count_state1_in_region(self, i, j, radius=3):
         count = 0
         for di in range(-radius, radius + 1):
             for dj in range(-radius, radius + 1):
@@ -146,7 +124,7 @@ class CellularAutomaton:
                     continue
                 # Ensure we wrap around the grid boundaries
                 ni, nj = (i + di) % self.size, (j + dj) % self.size
-                if self.grid[ni, nj].state == 2:
+                if self.grid[ni, nj].state == 1:
                     count += 1
         return count
 
@@ -168,6 +146,7 @@ class CellularAutomaton:
                         newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
                         agent.position = (new_i, new_j)
 
+
         # Update grid
         self.grid = newGrid
 
@@ -176,70 +155,34 @@ class CellularAutomaton:
         for i in range(self.size):
             for j in range(self.size):
                 agent = self.grid[i, j]
-                # Only check agents in state 1
+
+                # If agent is in state 1
                 if agent.state == 1:
-                    # Check neighbours
-                    neighbour = self.neighbours(i, j)
-                    if len(neighbour) > 0:
-                        newGroup = None
-                        # Loop through neighbors
-                        for (neighbourAgent, neighbourPosition) in neighbour:
-                            # If neighbor is in state 1
-                            if neighbourAgent.state == 1:
-                                # Create new group
-                                if newGroup is None:
-                                    # Key for new group
-                                    newKey = max(self.groups.keys()) + 1 if len(self.groups.keys()) > 0 else 0
-                                    newGroup = Group(agent, newKey)
-                                    self.groups[len(self.groups.keys())] = newGroup
+                    # Get neighbours
+                    neighbours = self.neighbours(i, j, 1, [1])
+                    if len(neighbours) > 19:
+                        agent.state = 2
+                        for neighboursAgent, _ in neighbours:
+                            if neighboursAgent.state == 1:
+                                neighboursAgent.state = 2
 
-                                    # Update state of current agent
-                                    # If the count of state 2 in the region is 19, change to state 3
-                                    if self.count_state2_in_region(i, j) >= 19:
-                                        agent.state = 3
-                                        Flag = True
-                                    else:
-                                        agent.state = 2
+                    # If agent is next to an agent in state 2
+                    density = self.get_density(i, j, 1, [2])
+                    if density > 0:
+                        agent.state = 2
 
-                                # Add neighbour to group
-                                if Flag:
-                                    neighbourAgent.state = 3
-                                else:
-                                    neighbourAgent.state = 2
+                    # If next to an agent in state 3
+                    density = self.get_density(i, j, 1, [3])
+                    if density > 0:
+                        agent.state = 3
 
-                                neighbourAgent.group = newGroup
-                                newGroup.append(neighbourAgent)
 
-                    # Go to next agent
-                    continue
-
-                # Check neighbors of agents in state 2
-                if agent.state == 2:
-                    if agent.group is None:
-                        agent.state = 1
-                        continue
-
-                    # Get neighbors
-                    neighbour = self.neighbours(i, j)
-
-                    # Check if any neighbors are in state 1
-                    for (neighbourAgent, neighbourPosition) in neighbour:
-                        if neighbourAgent.state == 1:
-                            # Add neighbor to group
-                            if self.count_state2_in_region(i, j) == 19:
-                                neighbourAgent.state = 3
-                            else:
-                                neighbourAgent.state = 2
-                            
-                            neighbourAgent.group = agent.group
-                            agent.group.append(neighbourAgent)
-
-                elif agent.state == 3:
+                elif agent.state == 2:
                     # Count number of days star has been in proto state
                     agent.steps_proto += 1
 
                     ###
-                    # Need to add addition of gas particles into proto 
+                    # Need to add addition of gas particles into proto
                     ###
 
                     # Transform proto star into star after long enough
@@ -249,8 +192,8 @@ class CellularAutomaton:
                         agent.state = 4
 
 
-                elif agent.state == 4:
-                    
+                elif agent.state == 3:
+
                     agent.steps_star += 1
                     #after a while, star dies out and parts turn into dissipating gas
 
@@ -258,41 +201,44 @@ class CellularAutomaton:
                     # Need to add repulsion factor for other incoming gas particles
                     ###
                     if agent.steps_star > 15:
-                        
+
                         agent.steps_star = 0
                         agent.state = 5
 
-                elif agent.state == 5:
+                # elif agent.state == 4:
+                #
+                #     if agent.steps_dissipating < 5:
+                #         direction = self.dissipate(self.get_density, i, j, self.size)
+                #         new_i, new_j = direction
+                #
+                #         if newGrid[new_i, new_j].state == 0:
+                #             newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+                #
+                #         agent.steps_dissipating += 1
+                #     else:
+                #         agent.state = 1
+                #         agent.steps_dissipating = 0
+                #
+                #         # In state 2
+                #         if neighbourAgent.state == 2:
+                #             if neighbourAgent.group is None:
+                #                 neighbourAgent.state = 1
+                #                 continue
+                #
+                #             # Merge groups
+                #             if neighbourAgent.group != agent.group:
+                #                 agent.group + neighbourAgent.group
+                #
+                #                 # Update group key of agents in group2
+                #                 for groupAgent in neighbourAgent.group.agents:
+                #                     groupAgent.group = agent.group
 
-                    if agent.steps_dissipating < 5:
-                        direction = agent.dissipate(self.get_density, i, j, self.size)
-                        new_i, new_j = direction
-
-                        if newGrid[new_i, new_j].state == 0:
-                            newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-
-                        agent.steps_dissipating += 1
-                    else:
-                        agent.state = 1
-                        agent.steps_dissipating = 0
-
-        # # Movement of groups
-        # for group in self.groups.values():
-        #     # Get density of group
-        #     direction = np.random.randint(-1, 2, 2)
-        #
-        #     # Move group
-        #     positions = group.move(direction, self.size)
-        #
-        #     for (oldPosition, newPosition) in positions:
-        #         # Move agent to new position
-        #         self.grid[newPosition] = self.grid[oldPosition]
 
         return self.get_grid_states()
 
 
     def get_grid_states(self):
-        return np.array([[agent.state / 5 for agent in row] for row in self.grid])
+        return np.array([[agent.state for agent in row] for row in self.grid])
 
 
 # Grid size
@@ -301,15 +247,24 @@ N = 100
 # Initialize the cellular automaton
 automaton = CellularAutomaton(N, [0.95, 0.05])
 
+# Define colors for each state
+colors = {0: 'white',  # Color for state 0
+          1: 'blue',   # Color for state 1
+          2: 'red',    # Color for state 2
+          3: 'green'}  # Color for state 3
+
+# Create a color map from the defined colors
+cmap = mcolors.ListedColormap([colors[i] for i in range(len(colors))])
+
 # Set up the figure for visualization
 fig, ax = plt.subplots()
-cmap = plt.cm.gray_r
 mat = ax.matshow(automaton.get_grid_states(), cmap=cmap)
+print(cmap)
 
 # Update function for the animation
 def update(frame):
     mat.set_data(automaton.update(frame))
     return [mat]
 
-ani = animation.FuncAnimation(fig, update, interval=500, save_count=50)
+ani = animation.FuncAnimation(fig, update, interval=1/60, save_count=50)
 plt.show()
