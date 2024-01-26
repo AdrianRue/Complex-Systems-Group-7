@@ -89,7 +89,7 @@ class CellularAutomaton:
         self.grid = np.array([[Agent(state) for state in row] for row in np.random.choice([0, 1], size*size, p=agent_probs).reshape(size, size)], dtype=Agent)
         self.groups = {}
 
-    def get_density(self, i, j, radius=3):
+    def get_density(self, i, j, radius=5):
         # List with neighbours
         density = 0
 
@@ -104,7 +104,7 @@ class CellularAutomaton:
                 # Ensure we wrap around the grid boundaries
                 ni, nj = (i + di) % self.size, (j + dj) % self.size
                 if self.grid[ni, nj].state != 0:
-                    density += self.grid[ni, nj].state
+                    density += 100**(self.grid[ni, nj].state)
         return density
 
     def neighbours(self, i, j, radius, states=[1,2,3]):
@@ -172,7 +172,7 @@ class CellularAutomaton:
                 agent = self.grid[i, j]
 
                 # If agent is in state 1
-                if agent.state == 1 or agent.state == 2:
+                if agent.state == 1:
                     # Get neighbours
                     neighbours = self.neighbours(i, j, 1, [1])
                     if len(neighbours) > 6:
@@ -183,7 +183,7 @@ class CellularAutomaton:
 
                     # If agent is next to an agent in state 2
                     neighbours = self.neighbours(i, j, 1, [2])
-                    if len(neighbours) > 0:
+                    if len(neighbours) > 2:
                         agent.state = 2
                         steps = 0
                         for neighboursAgent, _ in neighbours:
@@ -193,7 +193,7 @@ class CellularAutomaton:
 
                     # If next to an agent in state 3
                     neighbours = self.neighbours(i, j, 1, [3])
-                    if len(neighbours) > 0:
+                    if len(neighbours) > 2:
                         agent.state = 3
                         steps = 0
                         for neighboursAgent, _ in neighbours:
@@ -202,7 +202,7 @@ class CellularAutomaton:
                         agent.steps_star = steps
 
 
-                elif agent.state == 2:
+                if agent.state == 2:
                     # Count number of days star has been in proto state
                     agent.steps_proto += 1
 
@@ -211,21 +211,19 @@ class CellularAutomaton:
                     ###
 
                     # Transform proto star into star after long enough
-                    if agent.steps_proto > 10:
-
-                        agent.steps_proto = 0
+                    if agent.steps_proto > 50:
                         agent.state = 3
+                        agent.steps_proto = 0
 
 
                 elif agent.state == 3:
-
                     agent.steps_star += 1
                     #after a while, star dies out and parts turn into dissipating gas
 
                     ###
                     # Need to add repulsion factor for other incoming gas particles
                     ###
-                    if agent.steps_star > 15:
+                    if agent.steps_star > 100:
 
                         agent.steps_star = 0
                         agent.state = 4
@@ -253,7 +251,7 @@ class CellularAutomaton:
 
 
 # Grid size
-N = 50
+N = 100
 
 # Initialize the cellular automaton
 automaton = CellularAutomaton(N, [0.9, 0.1])
@@ -269,7 +267,7 @@ cmap = mcolors.ListedColormap([colors[i] for i in range(len(colors))])
 
 # Set up the figure for visualization
 fig, ax = plt.subplots()
-mat = ax.matshow(automaton.get_grid_states(), cmap=cmap, vmin=0, vmax=len(colors)-1)
+mat = ax.matshow(automaton.get_grid_states(), cmap=cmap, vmin=0, vmax=len(colors))
 
 # Update function for the animation
 def update(frame):
