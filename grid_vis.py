@@ -89,7 +89,7 @@ class CellularAutomaton:
         self.grid = np.array([[Agent(state) for state in row] for row in np.random.choice([0, 1], size*size, p=agent_probs).reshape(size, size)], dtype=Agent)
         self.groups = {}
 
-    def get_density(self, i, j, radius=5):
+    def get_density(self, i, j, radius=6):
         # List with neighbours
         density = 0
 
@@ -104,7 +104,7 @@ class CellularAutomaton:
                 # Ensure we wrap around the grid boundaries
                 ni, nj = (i + di) % self.size, (j + dj) % self.size
                 if self.grid[ni, nj].state != 0:
-                    density += 100**(self.grid[ni, nj].state)
+                    density += (self.grid[ni, nj].state)
         return density
 
     def neighbours(self, i, j, radius, states=[1,2,3]):
