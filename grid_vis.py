@@ -160,7 +160,7 @@ class CellularAutomaton:
                 if agent.state == 1:
                     # Get neighbours
                     neighbours = self.neighbours(i, j, 1, [1])
-                    if len(neighbours) > 19:
+                    if len(neighbours) > 6:
                         agent.state = 2
                         for neighboursAgent, _ in neighbours:
                             if neighboursAgent.state == 1:
@@ -205,19 +205,19 @@ class CellularAutomaton:
                         agent.steps_star = 0
                         agent.state = 4
 
-                elif agent.state == 4:
-                
-                    if agent.steps_dissipating < 10:
-                        direction = self.dissipate(self.get_density, i, j, self.size)
-                        new_i, new_j = direction
-                
-                        if newGrid[new_i, new_j].state == 0:
-                            newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-                
-                        agent.steps_dissipating += 1
-                    else:
-                        agent.state = 1
-                        agent.steps_dissipating = 0
+                # elif agent.state == 4:
+                #
+                #     if agent.steps_dissipating < 10:
+                #         direction = self.dissipate(self.get_density, i, j, self.size)
+                #         new_i, new_j = direction
+                #
+                #         if newGrid[new_i, new_j].state == 0:
+                #             newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+                #
+                #         agent.steps_dissipating += 1
+                #     else:
+                #         agent.state = 1
+                #         agent.steps_dissipating = 0
 
 
         return self.get_grid_states()
@@ -231,7 +231,7 @@ class CellularAutomaton:
 N = 100
 
 # Initialize the cellular automaton
-automaton = CellularAutomaton(N, [0.95, 0.05])
+automaton = CellularAutomaton(N, [0.9, 0.1])
 
 # Define colors for each state
 colors = {0: 'white',  # Color for state 0
@@ -244,8 +244,7 @@ cmap = mcolors.ListedColormap([colors[i] for i in range(len(colors))])
 
 # Set up the figure for visualization
 fig, ax = plt.subplots()
-mat = ax.matshow(automaton.get_grid_states(), cmap=cmap)
-print(cmap)
+mat = ax.matshow(automaton.get_grid_states(), cmap=cmap, vmin=0, vmax=len(colors)-1)
 
 # Update function for the animation
 def update(frame):
