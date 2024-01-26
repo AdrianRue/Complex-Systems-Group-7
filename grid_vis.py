@@ -87,9 +87,23 @@ class CellularAutomaton:
         self.grid = np.array([[Agent(state) for state in row] for row in np.random.choice([0, 1], size*size, p=agent_probs).reshape(size, size)], dtype=Agent)
         self.groups = {}
 
-    def get_density(self, i, j, radius=3, states=[1, 2, 3]):
+    def get_density(self, i, j, radius=3):
+        # List with neighbours
+        density = 0
 
-        return len(self.neighbours(i, j, radius, states))
+        # Get neighbors
+        for di in range(-radius, radius + 1):
+            for dj in range(-radius, radius + 1):
+                # Skip the current cell
+                if di == 0 and dj == 0:
+                    continue
+
+                # Ensure we wrap around the grid boundaries
+                ni, nj = (i + di) % self.size, (j + dj) % self.size
+
+                density += self.grid[ni, nj].state
+
+        return density
 
     def neighbours(self, i, j, radius, states=[1,2,3]):
         # List with neighbours
@@ -150,7 +164,6 @@ class CellularAutomaton:
         # Update grid
         self.grid = newGrid
 
-        Flag = False
         # Check if any agents are next to each other
         for i in range(self.size):
             for j in range(self.size):
@@ -167,14 +180,24 @@ class CellularAutomaton:
                                 neighboursAgent.state = 2
 
                     # If agent is next to an agent in state 2
-                    density = self.get_density(i, j, 1, [2])
-                    if density > 0:
+                    neighbours = self.neighbours(i, j, 1, [2])
+                    if len(neighbours) > 0:
                         agent.state = 2
+                        steps = 0
+                        for neighboursAgent, _ in neighbours:
+                            if neighboursAgent.steps_proto > steps:
+                                steps = neighboursAgent.steps_proto
+                        agent.steps_proto = steps
 
                     # If next to an agent in state 3
-                    density = self.get_density(i, j, 1, [3])
-                    if density > 0:
+                    neighbours = self.neighbours(i, j, 1, [3])
+                    if len(neighbours) > 0:
                         agent.state = 3
+                        steps = 0
+                        for neighboursAgent, _ in neighbours:
+                            if neighboursAgent.steps_star > steps:
+                                steps = neighboursAgent.steps_star
+                        agent.steps_star = steps
 
 
                 elif agent.state == 2:
