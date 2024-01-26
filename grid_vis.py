@@ -9,6 +9,9 @@ class Agent:
         self.state = state
         self.group = None
         self.position = None
+        self.steps_proto = 0
+        self.steps_star = 0
+        self.steps_dissipating = 0        
 
     def move(self, get_density_func, i, j, size):
         directions = {
@@ -20,6 +23,41 @@ class Agent:
             'up-right': ((i - 1) % size, (j + 1) % size),
             'down-left': ((i + 1) % size, (j - 1) % size),
             'down-right': ((i + 1) % size, (j + 1) % size)
+        }
+
+        # Calculate densities for each direction
+        densities = {dir: get_density_func(pos[0], pos[1]) for dir, pos in directions.items()}
+
+        # Compute sum of densities
+        density_sum = sum(densities.values())
+
+        # Density has to be non-zero
+        if density_sum != 0:
+            # Compute probabilities for each direction
+            probabilities = [density / density_sum for density in densities.values()]
+
+            # Choose direction based on probabilities
+            direction = np.random.choice(list(directions.keys()), p=probabilities)
+
+        # If density is zero, choose random direction
+        else:
+            direction = np.random.choice(list(directions.keys()))
+
+        return directions[direction]
+    
+
+    def dissipate(self, get_density_func, i, j, size):
+
+        # This is simply a reverse of the directions to move away from the clump of mass, couldn't think of a better way atm
+        directions = {
+            'up': ((i + 1) % size, j),
+            'down': ((i - 1) % size, j),
+            'left': (i, (j + 1) % size),
+            'right': (i, (j - 1) % size),
+            'up-left': ((i + 1) % size, (j + 1) % size),
+            'up-right': ((i + 1) % size, (j - 1) % size),
+            'down-left': ((i - 1) % size, (j + 1) % size),
+            'down-right': ((i - 1) % size, (j - 1) % size)
         }
 
         # Calculate densities for each direction
@@ -195,6 +233,48 @@ class CellularAutomaton:
                             
                             neighbourAgent.group = agent.group
                             agent.group.append(neighbourAgent)
+
+                elif agent.state == 3:
+                    # Count number of days star has been in proto state
+                    agent.steps_proto += 1
+
+                    ###
+                    # Need to add addition of gas particles into proto 
+                    ###
+
+                    # Transform proto star into star after long enough
+                    if agent.steps_proto > 10:
+
+                        agent.steps_proto = 0
+                        agent.state = 4
+
+
+                elif agent.state == 4:
+                    
+                    agent.steps_star += 1
+                    #after a while, star dies out and parts turn into dissipating gas
+
+                    ###
+                    # Need to add repulsion factor for other incoming gas particles
+                    ###
+                    if agent.steps_star > 15:
+                        
+                        agent.steps_star = 0
+                        agent.state = 5
+
+                elif agent.state == 5:
+
+                    if agent.steps_dissipating < 5:
+                        direction = agent.dissipate(self.get_density, i, j, self.size)
+                        new_i, new_j = direction
+
+                        if newGrid[new_i, new_j].state == 0:
+                            newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+
+                        agent.steps_dissipating += 1
+                    else:
+                        agent.state = 1
+                        agent.steps_dissipating = 0
 
         # # Movement of groups
         # for group in self.groups.values():

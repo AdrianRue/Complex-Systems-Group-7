@@ -200,9 +200,9 @@ class CellularAutomaton:
                     ###
 
                     # Transform proto star into star after long enough
-                    if agent.days_proto > 10:
+                    if agent.steps_proto > 10:
 
-                        agent.days_proto = 0
+                        agent.steps_proto = 0
                         agent.state = 4
 
 
@@ -214,9 +214,9 @@ class CellularAutomaton:
                     ###
                     # Need to add repulsion factor for other incoming gas particles
                     ###
-                    if agent.days_star > 15:
+                    if agent.steps_star > 15:
                         
-                        agent.days_star = 0
+                        agent.steps_star = 0
                         agent.state = 5
 
                 elif agent.state == 5:
@@ -228,10 +228,10 @@ class CellularAutomaton:
                         if newGrid[new_i, new_j].state == 0:
                             newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
 
-                        agent.days_dissipating += 1
+                        agent.steps_dissipating += 1
                     else:
                         agent.state = 1
-                        agent.days_dissipating = 0
+                        agent.steps_dissipating = 0
 
                     
                 
@@ -271,7 +271,6 @@ cmap = mcolors.ListedColormap([colors[i] for i in range(len(colors))])
 
 # Set up the figure for visualization
 fig, ax = plt.subplots()
-cmap = plt.cm.gray_r
 mat = ax.matshow(automaton.get_grid_states(), cmap=cmap)
 
 # Update function for the animation
