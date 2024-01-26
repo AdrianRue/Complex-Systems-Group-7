@@ -101,7 +101,8 @@ class CellularAutomaton:
                 # Ensure we wrap around the grid boundaries
                 ni, nj = (i + di) % self.size, (j + dj) % self.size
 
-                density += self.grid[ni, nj].state
+                if self.grid[ni, nj] != 0:
+                    density += 1
 
         return density
 
