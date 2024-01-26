@@ -150,7 +150,7 @@ class CellularAutomaton:
             for j in range(self.size):
                 agent = self.grid[i, j]
                 agent.position = (i, j)
-                if agent.state == 1:  # Only move agents that are in state 1
+                if agent.state == 1 or agent.state == 2 or agent.state == 3:  # Only move agents that are in state 1, 2 or 3
                     # Determine direction to move
                     direction = agent.move(self.get_density, i, j, self.size)
                     new_i, new_j = direction
@@ -170,7 +170,7 @@ class CellularAutomaton:
                 agent = self.grid[i, j]
 
                 # If agent is in state 1
-                if agent.state == 1:
+                if agent.state == 1 or agent.state == 2:
                     # Get neighbours
                     neighbours = self.neighbours(i, j, 1, [1])
                     if len(neighbours) > 6:
@@ -254,7 +254,7 @@ class CellularAutomaton:
 N = 100
 
 # Initialize the cellular automaton
-automaton = CellularAutomaton(N, [0.9, 0.1])
+automaton = CellularAutomaton(N, [0.8, 0.2])
 
 # Define colors for each state
 colors = {0: 'white',  # Color for state 0
