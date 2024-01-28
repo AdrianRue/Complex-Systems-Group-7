@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.colors as mcolors
 
+from Group import Group
+
 
 class Agent:
     def __init__(self, state):
@@ -84,10 +86,12 @@ class Agent:
 
 
 class CellularAutomaton:
-    def __init__(self, size, agent_probs):
+    def __init__(self, size, agent_probs, star, dissipation):
         self.size = size
         self.grid = np.array([[Agent(state) for state in row] for row in np.random.choice([0, 1], size*size, p=agent_probs).reshape(size, size)], dtype=Agent)
-        self.groups = {}
+        self.groups = []
+        self.star = star
+        self.dissipation = dissipation
 
     def get_density(self, i, j, radius=6):
         # List with neighbours
@@ -104,7 +108,7 @@ class CellularAutomaton:
                 # Ensure we wrap around the grid boundaries
                 ni, nj = (i + di) % self.size, (j + dj) % self.size
                 if self.grid[ni, nj].state != 0:
-                    density += (self.grid[ni, nj].state)
+                    density += self.grid[ni, nj].state
         return density
 
     def neighbours(self, i, j, radius, states=[1,2,3]):
@@ -126,7 +130,7 @@ class CellularAutomaton:
 
                 # Check if neighbor is in state
                 if neighbour.state in states:
-                    neighbour_list.append((neighbour, (ni, nj)))
+                    neighbour_list.append(neighbour)
 
         return neighbour_list
 
@@ -176,57 +180,24 @@ class CellularAutomaton:
                     # Get neighbours
                     neighbours = self.neighbours(i, j, 1, [1])
                     if len(neighbours) > 6:
-                        agent.state = 2
-                        for neighboursAgent, _ in neighbours:
+                        # Create new group
+                        new_group = Group(agent, self.star, self.dissipation)
+                        for neighboursAgent in neighbours:
                             if neighboursAgent.state == 1:
-                                neighboursAgent.state = 2
+                                new_group.append(neighboursAgent)
+
+                        self.groups.append(new_group)
 
                     # If agent is next to an agent in state 2
                     neighbours = self.neighbours(i, j, 1, [2])
-                    if len(neighbours) > 2:
-                        agent.state = 2
-                        steps = 0
-                        for neighboursAgent, _ in neighbours:
-                            if neighboursAgent.steps_proto > steps:
-                                steps = neighboursAgent.steps_proto
-                        agent.steps_proto = steps
+                    if len(neighbours) > 0:
+                        neighbours[0].group.append(agent)
 
                     # If next to an agent in state 3
                     neighbours = self.neighbours(i, j, 1, [3])
-                    if len(neighbours) > 2:
-                        agent.state = 3
-                        steps = 0
-                        for neighboursAgent, _ in neighbours:
-                            if neighboursAgent.steps_star > steps:
-                                steps = neighboursAgent.steps_star
-                        agent.steps_star = steps
+                    if len(neighbours) > 0:
+                        neighbours[0].group.append(agent)
 
-
-                if agent.state == 2:
-                    # Count number of days star has been in proto state
-                    agent.steps_proto += 1
-
-                    ###
-                    # Need to add addition of gas particles into proto
-                    ###
-
-                    # Transform proto star into star after long enough
-                    if agent.steps_proto > 50:
-                        agent.state = 3
-                        agent.steps_proto = 0
-
-
-                elif agent.state == 3:
-                    agent.steps_star += 1
-                    #after a while, star dies out and parts turn into dissipating gas
-
-                    ###
-                    # Need to add repulsion factor for other incoming gas particles
-                    ###
-                    if agent.steps_star > 100:
-
-                        agent.steps_star = 0
-                        agent.state = 4
 
                 # elif agent.state == 4:
                 #
@@ -242,6 +213,18 @@ class CellularAutomaton:
                 #         agent.state = 1
                 #         agent.steps_dissipating = 0
 
+        # Update groups
+        remove_groups = []
+        print(len(self.groups))
+        for i in range(len(self.groups)):
+            dissipation = self.groups[i].update()
+            if dissipation:
+                remove_groups.append(i)
+
+        # Remove from groups
+        for index in remove_groups:
+            self.groups.pop(index)
+        print(len(self.groups))
 
         return self.get_grid_states()
 
@@ -254,7 +237,7 @@ class CellularAutomaton:
 N = 100
 
 # Initialize the cellular automaton
-automaton = CellularAutomaton(N, [0.9, 0.1])
+automaton = CellularAutomaton(N, [0.85, 0.15], 10,30)
 
 # Define colors for each state
 colors = {0: 'white',  # Color for state 0
@@ -274,5 +257,5 @@ def update(frame):
     mat.set_data(automaton.update(frame))
     return [mat]
 
-ani = animation.FuncAnimation(fig, update, interval=1/60, save_count=50)
+ani = animation.FuncAnimation(fig, update, interval=1/120, save_count=50)
 plt.show()

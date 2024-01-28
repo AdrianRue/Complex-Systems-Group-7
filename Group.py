@@ -1,42 +1,35 @@
-import numpy as np
-
-
 class Group:
-    def __init__(self, agent, key):
+    def __init__(self, agent, star, dissipation):
         self.agents = [agent]
         self.size = 1
-        self.key = key
-
-    def __add__(self, group):
-        self.agents += group.agents
-        self.size += group.size
+        self.steps = 0
+        self.star = star
+        self.dissipation = dissipation
+        self.state = 2
+        agent.state = self.state
 
     def append(self, agent):
         self.agents.append(agent)
         self.size += 1
+        agent.state = self.state
+        agent.group = self
 
-    def move(self, direction, size):
-        # Change in positions
-        positionChange = []
+    def update(self):
+        # Check which state the group is in
+        if self.state == 2:
+            # Check if the group is big enough to become a star
+            if self.steps == self.star:
+                self.state = 3
+                for agent in self.agents:
+                    agent.state = self.state
 
-        # Loop through agents
-        for agent in self.agents:
-            # Position
-            position = agent.position
+        elif self.state == 3:
+            # Check if the group is big enough to dissipate
+            if self.steps == self.dissipation:
+                self.state = 1
+                for agent in self.agents:
+                    agent.state = self.state
+                return True
 
-            # Calculate new position
-            newPosition = np.add(position, direction)
-
-            # Check if agent is out of bounds
-            inBound = True
-            for i in range(2):
-                if newPosition[i] < 0 or newPosition[i] >= size:
-                    inBound = False
-                    break
-
-            # Update position
-            if inBound:
-                agent.position = tuple(newPosition)
-                positionChange.append((position, agent.position))
-
-        return positionChange
+        # Update steps
+        self.steps += 1
