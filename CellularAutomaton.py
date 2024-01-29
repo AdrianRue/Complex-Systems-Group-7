@@ -86,6 +86,16 @@ class CellularAutomaton:
                         newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
                         agent.position = (new_i, new_j)
 
+                if agent.state == 4:
+
+                    direction = agent.dissipate(agent.center_group[0], agent.center_group[1], i, j, self.size)
+                    new_i, new_j = direction
+
+                    if newGrid[new_i, new_j].state == 0:
+                        newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+                        agent.position = (new_i, new_j)
+
+
 
         # Update grid
         self.grid = newGrid
@@ -118,20 +128,6 @@ class CellularAutomaton:
                     if len(neighbours) > 2:
                         neighbours[0].group.append(agent)
 
-
-                # elif agent.state == 4:
-                #
-                #     if agent.steps_dissipating < 10:
-                #         direction = self.dissipate(self.get_density, i, j, self.size)
-                #         new_i, new_j = direction
-                #
-                #         if newGrid[new_i, new_j].state == 0:
-                #             newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-                #
-                #         agent.steps_dissipating += 1
-                #     else:
-                #         agent.state = 1
-                #         agent.steps_dissipating = 0
 
         # Update groups
         remove_groups = []
