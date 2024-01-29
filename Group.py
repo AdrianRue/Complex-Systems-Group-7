@@ -46,6 +46,7 @@ class Group:
                 self.state = 4
                 for agent in self.agents:
                     agent.state = self.state
+                    agent.center_group = self.calculate_center()
                 return True
 
         # Update steps

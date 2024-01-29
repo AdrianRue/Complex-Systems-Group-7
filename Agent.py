@@ -7,7 +7,8 @@ class Agent:
         self.position = None
         self.steps_proto = 0
         self.steps_star = 0
-        self.steps_dissipating = 0        
+        self.steps_dissipating = 0 
+        self.center_group = None       
 
     def move(self, get_density_func, i, j, size):
         directions = {
