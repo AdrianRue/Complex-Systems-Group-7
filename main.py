@@ -5,11 +5,11 @@ import matplotlib.colors as mcolors
 
 from CellularAutomaton import CellularAutomaton
 
-def simulate(N, prob_gas):
+def simulate(N, prob_gas, proto_size, star_size):
     p = [1-prob_gas, prob_gas]
 
     # Initialize the cellular automaton
-    automaton = CellularAutomaton(N, p)
+    automaton = CellularAutomaton(N, p, proto_size, star_size)
 
     # Define colors for each state
     colors = {0: 'white',  # Color for state 0
@@ -35,4 +35,9 @@ def simulate(N, prob_gas):
 
 
 if __name__ == "__main__":
-    simulate(100, 0.15)
+    N = 100             # Grid size
+    p = 0.15            # Prob of cell being gas
+    proto_size = 35     # Number of adjacent gas cells needed for a protostar 
+    star_size = 200     # Number of adjacent protostar cells needed for a protostar 
+
+    simulate(N, p, proto_size, star_size)
