@@ -1,6 +1,7 @@
 class Group:
-    def __init__(self, agent, star, dissipation):
+    def __init__(self, agent, star_size, star, dissipation):
         self.agents = [agent]
+        self.star_size = star_size
         self.size = 1
         self.steps = 0
         self.star = star
@@ -35,7 +36,7 @@ class Group:
         # Check which state the group is in
         if self.state == 2:
             # Check if the group is big enough to become a star
-            if self.steps >= self.star and self.size >= 200:
+            if self.steps >= self.star and self.size >= self.star_size:
                 self.state = 3
                 for agent in self.agents:
                     agent.state = self.state

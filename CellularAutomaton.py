@@ -1,13 +1,16 @@
 import numpy as np
+from Group import Group
 from Agent import Agent
 
 class CellularAutomaton:
-    def __init__(self, size, agent_probs, star_ts=10, diss_ts=30):
+    def __init__(self, size, agent_probs, proto_size, star_size):
         self.size = size
+        self.proto_size = proto_size
+        self.star_size = star_size
         self.grid = np.array([[Agent(state) for state in row] for row in np.random.choice([0, 1], size*size, p=agent_probs).reshape(size, size)], dtype=Agent)
         self.groups = []
-        self.star = star_ts
-        self.dissipation = diss_ts
+        self.star = 10
+        self.dissipation = 30
 
     def get_density(self, i, j, radius=3):
         # List with neighbours
@@ -95,9 +98,9 @@ class CellularAutomaton:
                 if agent.state == 1:
                     # Get neighbours
                     neighbours = self.neighbours(i, j, 3, [1])
-                    if len(neighbours) > 35:
+                    if len(neighbours) > self.proto_size:
                         # Create new group
-                        new_group = Group(agent, self.star, self.dissipation)
+                        new_group = Group(agent, self.star_size, self.star, self.dissipation)
                         for neighboursAgent in neighbours:
                             if neighboursAgent.state == 1:
                                 new_group.append(neighboursAgent)
