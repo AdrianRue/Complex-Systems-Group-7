@@ -3,6 +3,7 @@ import math
 
 class Agent:
     def __init__(self, state):
+        assert isinstance(state, np.int32), "State must be an integer"
         self.state = state
         self.group = None
         self.position = None
@@ -12,6 +13,10 @@ class Agent:
         self.center_group = None       
 
     def move(self, get_density_func, i, j, size):
+        assert callable(get_density_func), "get_density_func must be a callable function"
+        assert isinstance(i, int) and isinstance(j, int), "i and j must be integers"
+        assert isinstance(size, int) and size > 0, "size must be a positive integer"
+
         directions = {
             'up': ((i - 1) % size, j),
             'down': ((i + 1) % size, j),

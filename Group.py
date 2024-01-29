@@ -1,5 +1,9 @@
 class Group:
     def __init__(self, agent, star_size, star, dissipation):
+        assert isinstance(star_size, int) and star_size > 0, "star_size must be a positive integer"
+        assert isinstance(star, int) and star_size > 0, "star must be a positive integer"
+        assert isinstance(dissipation, int) and star_size > 0, "dissipation must be a positive integer"
+
         self.agents = [agent]
         self.star_size = star_size
         self.size = 1

@@ -16,6 +16,11 @@ parser.add_argument('--star_size', type=int, default=200, help='Star size')
 args = parser.parse_args()
 
 def simulate(N, prob_gas, proto_size, star_size):
+    assert isinstance(N, int) and N > 0, "Grid size N must be a positive integer."
+    assert isinstance(prob_gas, float) and 0 <= prob_gas <= 1, "Probability of gas must be a float between 0 and 1."
+    assert isinstance(proto_size, int) and 0 < proto_size <= N*N, "Proto size must be a positive integer and less than or equal to N."
+    assert isinstance(star_size, int) and 0 < star_size <= N*N, "Star size must be a positive integer and less than or equal to N."
+
     p = [1-prob_gas, prob_gas]
 
     # Initialize the cellular automaton

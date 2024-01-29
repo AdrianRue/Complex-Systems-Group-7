@@ -1,10 +1,15 @@
 import numpy as np
 from Group import Group
 from Agent import Agent
-from Group import Group
 
 class CellularAutomaton:
     def __init__(self, size, agent_probs, proto_size, star_size):
+        assert isinstance(size, int) and size > 0, "Size must be a positive integer"
+        assert isinstance(proto_size, int) and proto_size > 0, "Proto size must be a positive integer"
+        assert isinstance(star_size, int) and star_size > 0, "Star size must be a positive integer"
+        assert isinstance(agent_probs, (list, np.ndarray)), "agent_probs must be a list or numpy array"
+        assert all(0 <= p <= 1 for p in agent_probs), "Probabilities in agent_probs must be between 0 and 1"
+
         self.size = size
         self.proto_size = proto_size
         self.star_size = star_size
