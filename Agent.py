@@ -70,6 +70,8 @@ class Agent:
             return pos_agent_i, (pos_agent_j - 1) % size
         elif angle >= 292.5 and angle < 337.5:
             return (pos_agent_i - 1) % size, (pos_agent_j - 1) % size
+        else:
+            return pos_agent_i, pos_agent_j
 
 
 
