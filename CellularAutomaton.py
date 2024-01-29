@@ -1,5 +1,6 @@
 import numpy as np
 from Agent import Agent
+from Group import Group
 
 class CellularAutomaton:
     def __init__(self, size, agent_probs, star_ts=10, diss_ts=30):
