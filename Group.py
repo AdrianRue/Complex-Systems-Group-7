@@ -18,7 +18,7 @@ class Group:
         # Check which state the group is in
         if self.state == 2:
             # Check if the group is big enough to become a star
-            if self.steps == self.star:
+            if self.steps >= self.star and self.size >= 200:
                 self.state = 3
                 for agent in self.agents:
                     agent.state = self.state
