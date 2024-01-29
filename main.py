@@ -8,12 +8,12 @@ from Agent import Agent
 
 
 class CellularAutomaton:
-    def __init__(self, size, agent_probs, star, dissipation):
+    def __init__(self, size, agent_probs, star_ts=10, diss_ts=30):
         self.size = size
         self.grid = np.array([[Agent(state) for state in row] for row in np.random.choice([0, 1], size*size, p=agent_probs).reshape(size, size)], dtype=Agent)
         self.groups = []
-        self.star = star
-        self.dissipation = dissipation
+        self.star = star_ts
+        self.dissipation = diss_ts
 
     def get_density(self, i, j, radius=3):
         # List with neighbours
@@ -155,30 +155,33 @@ class CellularAutomaton:
         return np.array([[agent.state for agent in row] for row in self.grid])
 
 
+def simulate(N, prob_gas):
+    p = [1-prob_gas, prob_gas]
 
-# Grid size
-N = 100
+    # Initialize the cellular automaton
+    automaton = CellularAutomaton(N, p)
 
-# Initialize the cellular automaton
-automaton = CellularAutomaton(N, [0.85, 0.15], 10, 30)
+    # Define colors for each state
+    colors = {0: 'white',  # Color for state 0
+            1: 'blue',   # Color for state 1
+            2: 'red',    # Color for state 2
+            3: 'green'}  # Color for state 3
 
-# Define colors for each state
-colors = {0: 'white',  # Color for state 0
-          1: 'blue',   # Color for state 1
-          2: 'red',    # Color for state 2
-          3: 'green'}  # Color for state 3
+    # Create a color map from the defined colors
+    cmap = mcolors.ListedColormap([colors[i] for i in range(len(colors))])
 
-# Create a color map from the defined colors
-cmap = mcolors.ListedColormap([colors[i] for i in range(len(colors))])
+    # Set up the figure for visualization
+    fig, ax = plt.subplots()
+    mat = ax.matshow(automaton.get_grid_states(), cmap=cmap, vmin=0, vmax=len(colors))
 
-# Set up the figure for visualization
-fig, ax = plt.subplots()
-mat = ax.matshow(automaton.get_grid_states(), cmap=cmap, vmin=0, vmax=len(colors))
+    # Update function for the animation
+    def update(frame):
+        mat.set_data(automaton.update(frame))
+        return [mat]
 
-# Update function for the animation
-def update(frame):
-    mat.set_data(automaton.update(frame))
-    return [mat]
+    ani = animation.FuncAnimation(fig, update, interval=1/120, save_count=50)
+    plt.show()
 
-ani = animation.FuncAnimation(fig, update, interval=1/120, save_count=50)
-plt.show()
+
+if __name__ == "__main__":
+    simulate(100, 0.15)
