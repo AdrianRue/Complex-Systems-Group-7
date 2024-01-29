@@ -50,39 +50,39 @@ class Agent:
         return directions[direction]
     
 
-    def dissipate(self, get_density_func, i, j, size):
+    # def dissipate(self, get_density_func, i, j, size):
 
-        # This is simply a reverse of the directions to move away from the clump of mass, couldn't think of a better way atm
-        directions = {
-            'up': ((i + 1) % size, j),
-            'down': ((i - 1) % size, j),
-            'left': (i, (j + 1) % size),
-            'right': (i, (j - 1) % size),
-            'up-left': ((i + 1) % size, (j + 1) % size),
-            'up-right': ((i + 1) % size, (j - 1) % size),
-            'down-left': ((i - 1) % size, (j + 1) % size),
-            'down-right': ((i - 1) % size, (j - 1) % size)
-        }
+    #     # This is simply a reverse of the directions to move away from the clump of mass, couldn't think of a better way atm
+    #     directions = {
+    #         'up': ((i + 1) % size, j),
+    #         'down': ((i - 1) % size, j),
+    #         'left': (i, (j + 1) % size),
+    #         'right': (i, (j - 1) % size),
+    #         'up-left': ((i + 1) % size, (j + 1) % size),
+    #         'up-right': ((i + 1) % size, (j - 1) % size),
+    #         'down-left': ((i - 1) % size, (j + 1) % size),
+    #         'down-right': ((i - 1) % size, (j - 1) % size)
+    #     }
 
-        # Calculate densities for each direction
-        densities = {dir: get_density_func(pos[0], pos[1]) for dir, pos in directions.items()}
+    #     # Calculate densities for each direction
+    #     densities = {dir: get_density_func(pos[0], pos[1]) for dir, pos in directions.items()}
 
-        # Compute sum of densities
-        density_sum = sum(densities.values())
+    #     # Compute sum of densities
+    #     density_sum = sum(densities.values())
 
-        # Density has to be non-zero
-        if density_sum != 0:
-            # Compute probabilities for each direction
-            probabilities = [density / density_sum for density in densities.values()]
+    #     # Density has to be non-zero
+    #     if density_sum != 0:
+    #         # Compute probabilities for each direction
+    #         probabilities = [density / density_sum for density in densities.values()]
 
-            # Choose direction based on probabilities
-            direction = np.random.choice(list(directions.keys()), p=probabilities)
+    #         # Choose direction based on probabilities
+    #         direction = np.random.choice(list(directions.keys()), p=probabilities)
 
-        # If density is zero, choose random direction
-        else:
-            direction = np.random.choice(list(directions.keys()))
+    #     # If density is zero, choose random direction
+    #     else:
+    #         direction = np.random.choice(list(directions.keys()))
 
-        return directions[direction]
+    #     return directions[direction]
 
 
 class CellularAutomaton:
@@ -93,7 +93,7 @@ class CellularAutomaton:
         self.star = star
         self.dissipation = dissipation
 
-    def get_density(self, i, j, radius=6):
+    def get_density(self, i, j, radius=3):
         # List with neighbours
         density = 0
 
@@ -150,8 +150,10 @@ class CellularAutomaton:
 
 
     def update(self, frame):
-        # Moving all agents in state 1
+
+                           # Moving all agents in state 1
         newGrid = np.copy(self.grid)
+
         for i in range(self.size):
             for j in range(self.size):
                 agent = self.grid[i, j]
@@ -166,10 +168,12 @@ class CellularAutomaton:
                         newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
                         agent.position = (new_i, new_j)
 
+                
+
 
         # Update grid
         self.grid = newGrid
-
+    
         # Check if any agents are next to each other
         for i in range(self.size):
             for j in range(self.size):
@@ -199,23 +203,11 @@ class CellularAutomaton:
                         neighbours[0].group.append(agent)
 
 
-                # elif agent.state == 4:
-                #
-                #     if agent.steps_dissipating < 10:
-                #         direction = self.dissipate(self.get_density, i, j, self.size)
-                #         new_i, new_j = direction
-                #
-                #         if newGrid[new_i, new_j].state == 0:
-                #             newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-                #
-                #         agent.steps_dissipating += 1
-                #     else:
-                #         agent.state = 1
-                #         agent.steps_dissipating = 0
+                
 
         # Update groups
         remove_groups = []
-        print(len(self.groups))
+        #print(len(self.groups))
         for i in range(len(self.groups)):
             dissipation = self.groups[i].update()
             if dissipation:
@@ -224,7 +216,8 @@ class CellularAutomaton:
         # Remove from groups
         for index in remove_groups:
             self.groups.pop(index)
-        print(len(self.groups))
+        #print(len(self.groups))
+            
 
         return self.get_grid_states()
 
@@ -237,13 +230,14 @@ class CellularAutomaton:
 N = 100
 
 # Initialize the cellular automaton
-automaton = CellularAutomaton(N, [0.85, 0.15], 10,30)
+automaton = CellularAutomaton(N, [0.9, 0.1], 10,30)
 
 # Define colors for each state
 colors = {0: 'white',  # Color for state 0
-          1: 'blue',   # Color for state 1
-          2: 'red',    # Color for state 2
-          3: 'green'}  # Color for state 3
+          1: 'green',   # Color for state 1
+          2: 'yellow',    # Color for state 2
+          3: 'orange',  #  Color for state 3
+          4: 'blue'}  # Color for state 4
 
 # Create a color map from the defined colors
 cmap = mcolors.ListedColormap([colors[i] for i in range(len(colors))])
