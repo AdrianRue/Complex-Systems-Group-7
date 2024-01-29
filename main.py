@@ -15,7 +15,8 @@ def simulate(N, prob_gas):
     colors = {0: 'white',  # Color for state 0
             1: 'blue',   # Color for state 1
             2: 'red',    # Color for state 2
-            3: 'green'}  # Color for state 3
+            3: 'green',
+            4: 'pink'}  # Color for state 3
 
     # Create a color map from the defined colors
     cmap = mcolors.ListedColormap([colors[i] for i in range(len(colors))])
