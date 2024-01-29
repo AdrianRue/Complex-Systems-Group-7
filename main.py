@@ -1,9 +1,19 @@
-import numpy as np
+import argparse
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.colors as mcolors
 
 from CellularAutomaton import CellularAutomaton
+
+# Initialize the argument parser
+parser = argparse.ArgumentParser(description='2D Cellular Automaton Star Formation Simulation', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('--N', type=int, default=100, help='Grid size')
+parser.add_argument('--prob_gas', type=float, default=0.15, help='Probability of gas')
+parser.add_argument('--proto_size', type=int, default=35, help='Proto size')
+parser.add_argument('--star_size', type=int, default=200, help='Star size')
+
+# Parse the arguments
+args = parser.parse_args()
 
 def simulate(N, prob_gas, proto_size, star_size):
     p = [1-prob_gas, prob_gas]
@@ -34,9 +44,5 @@ def simulate(N, prob_gas, proto_size, star_size):
 
 
 if __name__ == "__main__":
-    N = 100             # Grid size
-    p = 0.15            # Prob of cell being gas
-    proto_size = 35     # Number of adjacent gas cells needed for a protostar 
-    star_size = 200     # Number of adjacent protostar cells needed for a protostar 
-
-    simulate(N, p, proto_size, star_size)
+    # Call the simulate function with arguments from the command line
+    simulate(args.N, args.prob_gas, args.proto_size, args.star_size)
