@@ -14,6 +14,23 @@ class Group:
         agent.state = self.state
         agent.group = self
 
+    def calculate_center(self):
+        total_i = 0
+        total_j = 0
+        counter = 0
+        
+        for i in range(len(self.agents)):
+            total_i += self.agents[i].position[0]
+            total_j += self.agents[i].position[1]
+
+            counter += 1
+        
+        center_i = total_i / counter
+        center_j = total_j / counter
+
+        return round(center_i), round(center_j)
+
+
     def update(self):
         # Check which state the group is in
         if self.state == 2:
@@ -26,7 +43,7 @@ class Group:
         elif self.state == 3:
             # Check if the group is big enough to dissipate
             if self.steps == self.dissipation:
-                self.state = 1
+                self.state = 4
                 for agent in self.agents:
                     agent.state = self.state
                 return True
