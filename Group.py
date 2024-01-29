@@ -44,6 +44,7 @@ class Group:
                 self.state = 3
                 for agent in self.agents:
                     agent.state = self.state
+                self.steps = 0
 
         elif self.state == 3:
             # Check if the group is big enough to dissipate
