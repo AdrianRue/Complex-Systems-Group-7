@@ -117,6 +117,12 @@ class CellularAutomaton:
         return neighbour_list
 
     def update(self, frame):
+        """
+        Update the grid
+
+        :param frame: Current frame
+        :return: States of each agent in the grid
+        """
         # Moving all agents in state 1
         newGrid = np.copy(self.grid)
         for i in range(self.size):
@@ -193,5 +199,10 @@ class CellularAutomaton:
 
 
     def get_grid_states(self):
+        """
+        Returns the state of each agent in the grid
+
+        :return: State of agents
+        """
         return np.array([[agent.state for agent in row] for row in self.grid])
 
