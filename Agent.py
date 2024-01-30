@@ -2,16 +2,44 @@ import numpy as np
 import math
 
 class Agent:
+    """
+    Class representing an agent
+
+    Attributes
+    ----------
+    state : int
+        State of the agent
+    group : Group
+        Group the agent belongs to
+    position : tuple
+        Position of the agent in the grid
+    center_group : Tuple
+        Location of the center of the group
+
+    Methods
+    -------
+    move(get_density_func, i, j, size)
+        Returns the new position of the agent
+    dissipation(pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size)
+        Returns the new position of the agent if dissipation is happening
+    """
     def __init__(self, state):
+        """
+        Constructs a new agent
+
+        :param state: State of the agent
+        """
+        assert isinstance(state, np.int32), "State must be an integer"
         self.state = state
         self.group = None
         self.position = None
-        self.steps_proto = 0
-        self.steps_star = 0
-        self.steps_dissipating = 0 
-        self.center_group = None       
+        self.center_group = None
 
     def move(self, get_density_func, i, j, size):
+        assert callable(get_density_func), "get_density_func must be a callable function"
+        assert isinstance(i, int) and isinstance(j, int), "i and j must be integers"
+        assert isinstance(size, int) and size > 0, "size must be a positive integer"
+
         directions = {
             'up': ((i - 1) % size, j),
             'down': ((i + 1) % size, j),
@@ -44,7 +72,7 @@ class Agent:
 
         # print("Chosen direction:", direction)  # Debug statement
         return directions[direction]
-    
+
 
     def dissipate(self, pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size):
 
