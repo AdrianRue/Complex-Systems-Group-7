@@ -38,12 +38,6 @@ class TestCellularAutomaton:
         neighbour_list = automaton.neighbours(i, j, radius, states)
         assert isinstance(neighbour_list, list)
 
-    def test_count_state1_in_region(self, automaton):
-        i, j = 5, 5
-        radius = 4
-        count = automaton.count_state1_in_region(i, j, radius)
-        assert isinstance(count, int)
-
     def test_update(self, automaton):
         frame = 0 
         grid_states = automaton.update(frame)

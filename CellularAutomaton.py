@@ -3,7 +3,47 @@ from Group import Group
 from Agent import Agent
 
 class CellularAutomaton:
+    """
+    Class representing a cellular automaton
+
+    Attributes
+    ----------
+    size : int
+        Size of the grid
+    proto_size : int
+        Size of the proto groups before they become a star group
+    star_size : int
+        Size of the star groups before they dissipate
+    grid : numpy.ndarray
+        Grid of agents
+    groups : list
+        List of groups
+    star : int
+        Time needed for a proto-star to become a star
+    dissipation : int
+        Time needed for a star to dissipate
+
+    Methods
+    -------
+    get_density(i, j, radius=3)
+        Returns the density of agents in a given radius around a position
+    neighbours(i, j, radius, states=[1,2,3])
+        Returns a list of neighbours in a given radius around a position
+    update(frame)
+        Updates the grid and groups
+    get_grid_states()
+        Returns the grid states
+
+    """
     def __init__(self, size, agent_probs, proto_size, star_size):
+        """
+        Constructs a new cellular automaton
+
+        :param size: Size of the grid
+        :param agent_probs: Probabilities of an agent being in state 1
+        :param proto_size: Size of the proto groups before they become a star group
+        :param star_size: Size of the star groups before they dissipate
+        """
         assert isinstance(size, int) and size > 0, "Size must be a positive integer"
         assert isinstance(proto_size, int) and proto_size > 0, "Proto size must be a positive integer"
         assert isinstance(star_size, int) and star_size > 0, "Star size must be a positive integer"
@@ -19,6 +59,14 @@ class CellularAutomaton:
         self.dissipation = 30
 
     def get_density(self, i, j, radius=3):
+        """
+        Returns the density of agents in a given radius around a position
+
+        :param i: Vertical position of the agent
+        :param j: Horizontal position of the agent
+        :param radius: Radius around the agent
+        :return: Density of agents in a given radius around a position
+        """
         # List with neighbours
         density = 0
 
@@ -37,6 +85,15 @@ class CellularAutomaton:
         return density
 
     def neighbours(self, i, j, radius, states=[1,2,3]):
+        """
+        Returns a list of neighbours in a given radius around a positio
+
+        :param i: Vertical position of the agent
+        :param j: Horizontal position of the agent
+        :param radius: Radius around the agent
+        :param states: States of the neighbours
+        :return: Neighbours in a given radius around a position in a given state
+        """
         # List with neighbours
         neighbour_list = []
 
@@ -58,21 +115,6 @@ class CellularAutomaton:
                     neighbour_list.append(neighbour)
 
         return neighbour_list
-
-
-    def count_state1_in_region(self, i, j, radius=4):
-        count = 0
-        for di in range(-radius, radius + 1):
-            for dj in range(-radius, radius + 1):
-                # Skip the current cell
-                if di == 0 and dj == 0:
-                    continue
-                # Ensure we wrap around the grid boundaries
-                ni, nj = (i + di) % self.size, (j + dj) % self.size
-                if self.grid[ni, nj].state == 1:
-                    count += 1
-        return count
-
 
     def update(self, frame):
         # Moving all agents in state 1

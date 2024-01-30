@@ -1,5 +1,43 @@
 class Group:
+    """
+    Class representing a group of agents
+
+    Attributes
+    ----------
+    agents : list
+        List of agents in the group
+    star_size : int
+        Size of the group before it becomes a star
+    size : int
+        Size of the group
+    steps : int
+        Counter used to determine when transitions happen
+    star : int
+        Time needed for a proto-star to become a star
+    dissipation : int
+        Time needed for a star to dissipate
+    state : int
+        State of the group
+
+    Methods
+    -------
+    append(agent)
+        Appends an agent to the group
+    calculate_center()
+        Calculates the center of the group
+    update()
+        Updates the group
+
+    """
     def __init__(self, agent, star_size, star, dissipation):
+        """
+        Constructs a new group
+
+        :param agent: Agent to be added to the group
+        :param star_size: Size of the group before it becomes a star
+        :param star: Time needed for a proto-star to become a star
+        :param dissipation: Time needed for a star to dissipate
+        """
         assert isinstance(star_size, int) and star_size > 0, "star_size must be a positive integer"
         assert isinstance(star, int) and star_size > 0, "star must be a positive integer"
         assert isinstance(dissipation, int) and star_size > 0, "dissipation must be a positive integer"
@@ -14,12 +52,22 @@ class Group:
         agent.state = self.state
 
     def append(self, agent):
+        """
+        Appends an agent to the group
+
+        :param agent: Agent to be added to the group
+        """
         self.agents.append(agent)
         self.size += 1
         agent.state = self.state
         agent.group = self
 
     def calculate_center(self):
+        """
+        Calculates the center of the group
+
+        :return: Center of the group
+        """
         total_i = 0
         total_j = 0
         counter = 0
@@ -37,6 +85,11 @@ class Group:
 
 
     def update(self):
+        """
+        Updates the group
+
+        :return: boolean indicating if the group has dissipated
+        """
         # Check which state the group is in
         if self.state == 2:
             # Check if the group is big enough to become a star
