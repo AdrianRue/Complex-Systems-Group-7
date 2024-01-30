@@ -50,8 +50,32 @@ class Agent:
 
         vec_i = pos_c_i - pos_agent_i
         vec_j = pos_c_j - pos_agent_j
+        angle = 0
 
-        angle = math.degrees(math.atan(vec_i/vec_j))
+        if vec_i != 0 and vec_j != 0:
+
+            angle = math.degrees(math.atan(vec_j/vec_i))
+            print(angle)
+            
+        elif vec_i == 0:
+
+            if pos_agent_j > pos_c_j:
+
+                return pos_agent_i, (pos_agent_j + 1) % size
+            
+            elif pos_agent_j < pos_c_j:
+                
+                return pos_agent_i, (pos_agent_j - 1) % size
+        
+        elif vec_j == 0:
+
+            if pos_agent_i > pos_c_i:
+
+                return (pos_agent_i - 1) % size, pos_agent_j
+            
+            elif pos_agent_i > pos_c_i:
+
+                return (pos_agent_i + 1) % size, pos_agent_j
 
 
         if  angle >= 337.5 or angle < 22.5:
