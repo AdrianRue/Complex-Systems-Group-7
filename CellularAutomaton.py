@@ -180,6 +180,13 @@ class CellularAutomaton:
                     if newGrid[new_i, new_j].state == 0:
                         newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
                         agent.position = (new_i, new_j)
+                    
+                    agent.days_dissipate += 1
+
+                    if agent.days_dissipate >= 5:
+
+                        agent.days_dissipate = 0
+                        agent.state = 1
 
 
 
