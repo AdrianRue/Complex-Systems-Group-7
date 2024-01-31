@@ -4,7 +4,7 @@ from Agent import Agent
 from numba import jit
 
 @jit(nopython=True, parallel=True)
-def density_grid(states, radius=3):
+def density_grid(states, radius=5):
     """
     Returns the density of agents in a given radius around a position
 
@@ -65,7 +65,7 @@ class CellularAutomaton:
         Returns the grid states
 
     """
-    def __init__(self, size, agent_probs, proto_size, star_size):
+    def __init__(self, size, agent_probs, proto_size, star_size, steps_dissipating):
         """
         Constructs a new cellular automaton
 
@@ -78,6 +78,7 @@ class CellularAutomaton:
         assert isinstance(proto_size, int) and proto_size > 0, "Proto size must be a positive integer"
         assert isinstance(star_size, int) and star_size > 0, "Star size must be a positive integer"
         assert isinstance(agent_probs, (list, np.ndarray)), "agent_probs must be a list or numpy array"
+        assert isinstance(steps_dissipating, int) and steps_dissipating > 0, "Steps dissipating must be a positive integer"
         assert all(0 <= p <= 1 for p in agent_probs), "Probabilities in agent_probs must be between 0 and 1"
 
         self.size = size
@@ -86,7 +87,7 @@ class CellularAutomaton:
         self.grid = np.array([[Agent(state) for state in row] for row in np.random.choice([0, 1], size*size, p=agent_probs).reshape(size, size)], dtype=Agent)
         self.groups = []
         self.star = 10
-        self.dissipation = 30
+        self.dissipation = steps_dissipating
 
     def get_density(self, i, j, radius=3):
         """
@@ -162,24 +163,35 @@ class CellularAutomaton:
             for j in range(self.size):
                 agent = self.grid[i, j]
                 agent.position = (i, j)
-                if agent.state == 1 or agent.state == 2 or agent.state == 3:  # Only move agents that are in state 1, 2 or 3
+                if agent.state == 1 or agent.state == 2 or agent.state == 3:
                     # Determine direction to move
-                    direction = agent.move(i, j, densities)
-                    new_i, new_j = direction
+                    direction = agent.move(i, j, densities, self.grid)
+                    if direction:
+                        new_i, new_j = direction
 
-                    # Swap agents if the new position is in state 0
-                    if newGrid[new_i, new_j].state == 0:
-                        newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-                        agent.position = (new_i, new_j)
+                        # Swap agents if the new position is in state 0
+                        if newGrid[new_i, new_j].state == 0:
+                            newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+                            agent.position = (new_i, new_j)
+                #
+                # if agent.state == 2 or agent.state == 3:
+                #
+                #     direction = agent.move_center(agent.center_group[0], agent.center_group[1], i, j, self.size)
+                #     new_i, new_j = direction
+                #
+                #     if newGrid[new_i, new_j].state == 0:
+                #         newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+                #         agent.position = (new_i, new_j)
+
 
                 if agent.state == 4:
-
-                    direction = agent.dissipate(agent.center_group[0], agent.center_group[1], i, j, self.size)
+                    assert agent, f"Agent is none"
+                    direction = agent.dissipate(i, j, self.size)
                     new_i, new_j = direction
 
-                    if newGrid[new_i, new_j].state == 0:
-                        newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-                        agent.position = (new_i, new_j)
+                    
+                    newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+                    agent.position = (new_i, new_j)
                     
                     agent.days_dissipate += 1
 
@@ -231,20 +243,38 @@ class CellularAutomaton:
                                 break
                         continue
 
+                elif agent.state == 2 or agent.state == 3:
+                    neighbours = self.neighbours(i, j, 1, [2, 3])
+                    if len(neighbours) > 0:
+                        for neighbour in neighbours:
+                            if agent.group and neighbour.group:
+                                if neighbour.group != agent.group and neighbour.group:
+                                    if neighbour.state > agent.state:
+                                        neighbour.group.merge(agent.group)
+                                    else:
+
+                                        agent.group.merge(neighbour.group)
+                        continue
 
         # Update groups
-        remove_groups = []
-        # print(len(self.groups))
-        for i in range(len(self.groups)):
-            dissipation = self.groups[i].update()
-            if dissipation:
-                remove_groups.append(i)
+        updated_groups = []
 
-        # Remove from groups
-        for index in remove_groups:
-            self.groups.pop(index)
-        # print(len(self.groups))
+        for group in self.groups:
+            if group.merged:
+                del group
+                continue
 
+            # Check if still a star
+            is_star = group.update()
+            if is_star:
+                updated_groups.append(group)
+
+
+            # Is dissipating
+            else:
+                del group
+
+        self.groups = updated_groups
         return self.get_grid_states()
 
 
