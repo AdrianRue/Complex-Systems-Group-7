@@ -12,8 +12,6 @@ class Agent:
         Group the agent belongs to
     position : tuple
         Position of the agent in the grid
-    center_group : Tuple
-        Location of the center of the group
 
     Methods
     -------
@@ -32,7 +30,6 @@ class Agent:
         self.state = state
         self.group = None
         self.position = None
-        self.center_group = None
         self.days_dissipate = 0
 
 
@@ -98,7 +95,7 @@ class Agent:
         return pos_agent_i, pos_agent_j
 
 
-    def dissipate(self, center_of_group, pos_agent_i, pos_agent_j, size):
+    def dissipate(self, pos_agent_i, pos_agent_j, size):
         """
         Returns the new position of the agent if dissipation is happening
 
@@ -110,9 +107,7 @@ class Agent:
         :return: New position of the agent
         """
 
-        pos_c_i = center_of_group[0]
-        pos_c_j = center_of_group[1]
-
+        pos_c_i, pos_c_j = self.group.center
 
         # Compute vector
         movement = [pos_agent_i - pos_c_i, pos_agent_j - pos_c_j]
@@ -133,12 +128,12 @@ class Agent:
             movement = directions[direction]
 
 
-        if abs(self.center_group[0] - pos_agent_i) > size / 4:
+        if abs(self.center_group[0] - pos_agent_i) > self.group.size / 4:
             pos_agent_i -= movement[0]
         else:
             pos_agent_i += movement[0]
 
-        if abs(self.center_group[1] - pos_agent_j) > size / 4:
+        if abs(self.center_group[1] - pos_agent_j) > self.group.size / 4:
             pos_agent_j -= movement[1]
         else:
             pos_agent_j += movement[1]

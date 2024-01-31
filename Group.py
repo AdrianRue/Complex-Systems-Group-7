@@ -51,7 +51,10 @@ class Group:
         self.star = star
         self.dissipation = dissipation
         self.state = 2
+        self.center = None
+        self.merged = False
         agent.state = self.state
+        agent.group = self
 
     def append(self, agent):
         """
@@ -122,7 +125,32 @@ class Group:
 
                 for agent in self.agents:
                     agent.state = self.state
-                return True
+                return False
+
+        # Make sure all agents are linked to this group
+        for agent in self.agents:
+            agent.group = self
+
+        # Recalculate center
+        self.center = self.calculate_center()
 
         # Update steps
         self.steps += 1
+
+        return True
+
+    def merge(self, group):
+        """
+        Merges this group with another group
+
+        :param group: Group to be merged with
+        """
+        for agent in group.agents:
+            self.append(agent)
+
+        group.merged = True
+
+
+        self.steps = max(self.steps, group.steps)
+
+

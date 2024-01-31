@@ -4,7 +4,7 @@ from Agent import Agent
 from numba import jit
 
 @jit(nopython=True, parallel=True)
-def density_grid(states, radius=3):
+def density_grid(states, radius=5):
     """
     Returns the density of agents in a given radius around a position
 
@@ -186,7 +186,7 @@ class CellularAutomaton:
 
                 if agent.state == 4:
                     assert agent, f"Agent is none"
-                    direction = agent.dissipate(agent.center_group, i, j, self.size)
+                    direction = agent.dissipate(i, j, self.size)
                     new_i, new_j = direction
 
                     
@@ -243,20 +243,38 @@ class CellularAutomaton:
                                 break
                         continue
 
+                elif agent.state == 2 or agent.state == 3:
+                    neighbours = self.neighbours(i, j, 1, [2, 3])
+                    if len(neighbours) > 0:
+                        for neighbour in neighbours:
+                            if agent.group and neighbour.group:
+                                if neighbour.group != agent.group and neighbour.group:
+                                    if neighbour.state > agent.state:
+                                        neighbour.group.merge(agent.group)
+                                    else:
+
+                                        agent.group.merge(neighbour.group)
+                        continue
 
         # Update groups
-        remove_groups = []
-        # print(len(self.groups))
-        for i in range(len(self.groups)):
-            dissipation = self.groups[i].update()
-            if dissipation:
-                remove_groups.append(i)
+        updated_groups = []
 
-        # Remove from groups
-        for index in remove_groups:
-            self.groups.pop(index)
-        # print(len(self.groups))
+        for group in self.groups:
+            if group.merged:
+                del group
+                continue
 
+            # Check if still a star
+            is_star = group.update()
+            if is_star:
+                updated_groups.append(group)
+
+
+            # Is dissipating
+            else:
+                del group
+
+        self.groups = updated_groups
         return self.get_grid_states()
 
 
