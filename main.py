@@ -29,7 +29,7 @@ def simulate(N, prob_gas, proto_size, star_size, steps_dissipating):
     p = [1-prob_gas, prob_gas]
 
     # Initialize the cellular automaton
-    automaton = CellularAutomaton(N, p, proto_size, star_size)
+    automaton = CellularAutomaton(N, p, proto_size, star_size, steps_dissipating)
 
     global counts
     time_step_counter = 0
@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
     for prob_gas in probs_gas:
         # Call the simulate function with arguments from the command line
-        simulate(args.N, args.prob_gas, args.proto_size, args.star_size)
+        simulate(args.N, args.prob_gas, args.proto_size, args.star_size, args.steps_dissipating)
         check_powerlaw(prob_gas)
 
         labels = {1: "gas", 2: "Protostar", 3: "Star"}
