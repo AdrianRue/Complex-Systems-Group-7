@@ -29,7 +29,7 @@ class Agent:
 
         :param state: State of the agent
         """
-        assert isinstance(state, np.int64), "State must be an integer"
+        assert isinstance(state, (np.int32, np.int64)), "State must be an integer"
         self.state = state
         self.group = None
         self.position = None
