@@ -186,12 +186,12 @@ class CellularAutomaton:
 
                 if agent.state == 4:
                     assert agent, f"Agent is none"
-                    direction = agent.dissipate(agent.center_group[0], agent.center_group[1], i, j, self.size)
+                    direction = agent.dissipate(agent.center_group, i, j, self.size)
                     new_i, new_j = direction
 
-                    if newGrid[new_i, new_j].state == 0:
-                        newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-                        agent.position = (new_i, new_j)
+                    
+                    newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+                    agent.position = (new_i, new_j)
                     
                     agent.days_dissipate += 1
 

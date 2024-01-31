@@ -9,8 +9,8 @@ from CellularAutomaton import CellularAutomaton
 parser = argparse.ArgumentParser(description='2D Cellular Automaton Star Formation Simulation', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--N', type=int, default=100, help='Grid size')
 parser.add_argument('--prob_gas', type=float, default=0.1, help='Probability of gas')
-parser.add_argument('--proto_size', type=int, default=35, help='Proto size')
-parser.add_argument('--star_size', type=int, default=100, help='Star size')
+parser.add_argument('--proto_size', type=int, default=15, help='Proto size')
+parser.add_argument('--star_size', type=int, default=35, help='Star size')
 parser.add_argument('--steps_dissipating', type=int, default=30, help='Steps dissipation')
 
 # Parse the arguments

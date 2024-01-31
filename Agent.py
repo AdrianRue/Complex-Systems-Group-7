@@ -98,7 +98,7 @@ class Agent:
         return pos_agent_i, pos_agent_j
 
 
-    def dissipate(self, pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size):
+    def dissipate(self, center_of_group, pos_agent_i, pos_agent_j, size):
         """
         Returns the new position of the agent if dissipation is happening
 
@@ -109,6 +109,9 @@ class Agent:
         :param size: Size of the grid
         :return: New position of the agent
         """
+
+        pos_c_i = center_of_group[0]
+        pos_c_j = center_of_group[1]
 
 
         # Compute vector
@@ -129,9 +132,20 @@ class Agent:
             direction = np.random.choice(range(len(directions)))
             movement = directions[direction]
 
+
+        if abs(self.center_group[0] - pos_agent_i) > size / 4:
+            pos_agent_i -= movement[0]
+        else:
+            pos_agent_i += movement[0]
+
+        if abs(self.center_group[1] - pos_agent_j) > size / 4:
+            pos_agent_j -= movement[1]
+        else:
+            pos_agent_j += movement[1]
+            
         # New position of the agent
-        pos_agent_i += movement[0]
-        pos_agent_j += movement[1]
+        # pos_agent_i += movement[0]
+        # pos_agent_j += movement[1]
 
         # Wrap around if out of bounds
         pos_agent_i %= size
