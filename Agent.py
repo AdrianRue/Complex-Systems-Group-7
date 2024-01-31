@@ -139,7 +139,7 @@ class Agent:
             
         elif vec_x == 0:
 
-            if pos_agent_i > pos_c_i:
+            if pos_agent_i < pos_c_i:
                 return (pos_agent_i - 1) % size, pos_agent_j
             
             elif pos_agent_i > pos_c_i:
