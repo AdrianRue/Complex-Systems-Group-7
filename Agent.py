@@ -109,6 +109,23 @@ class Agent:
 
         pos_c_i, pos_c_j = self.group.center
 
+        # Fixed problem where if star was in all 4 corners is dissipates incorrectly
+        if abs(self.center_group[0] - pos_agent_i) > self.group.size / 4 and abs(self.center_group[1] - pos_agent_j) > self.group.size / 4:
+            movement = [pos_agent_i - (size / 2), pos_agent_j - (size / 2)]
+
+            movement[0] = find_nearest([-1, 0, 1], movement[0])
+            movement[1] = find_nearest([-1, 0, 1], movement[1])
+
+            pos_agent_i -= movement[0]
+            pos_agent_j -= movement[1]
+
+        # Wrap around if out of bounds
+            pos_agent_i %= size
+            pos_agent_j %= size
+
+            return pos_agent_i, pos_agent_j
+
+            
         # Compute vector
         movement = [pos_agent_i - pos_c_i, pos_agent_j - pos_c_j]
 
@@ -128,6 +145,8 @@ class Agent:
             movement = directions[direction]
 
 
+        
+
         if abs(self.center_group[0] - pos_agent_i) > self.group.size / 4:
             pos_agent_i -= movement[0]
         else:
@@ -137,6 +156,8 @@ class Agent:
             pos_agent_j -= movement[1]
         else:
             pos_agent_j += movement[1]
+
+        
             
         # New position of the agent
         # pos_agent_i += movement[0]
