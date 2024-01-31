@@ -1,7 +1,36 @@
 import numpy as np
 from Group import Group
 from Agent import Agent
-from group_monitor import GroupMonitor
+from numba import jit
+
+@jit(nopython=True, parallel=True)
+def density_grid(states, radius=3):
+    """
+    Returns the density of agents in a given radius around a position
+
+    :param states: States of the agents
+    :param radius: Radius around the agent
+    :return: Density of agents in a given radius around a position
+    """
+
+    size = states.shape
+    # List with neighbours
+    density = np.zeros(size)
+
+    for i in range(states.shape[0]):
+        for j in range(states.shape[1]):
+        # Get neighbors
+            for di in range(-radius, radius + 1):
+                for dj in range(-radius, radius + 1):
+
+                    # Skip the current cell
+                    if di == 0 and dj == 0:
+                        continue
+
+                    # Ensure we wrap around the grid boundaries
+                    ni, nj = (i + di) % states.shape[0], (j + dj) % states.shape[1]
+                    density[i, j] += (states[ni, nj] * 100)
+    return density
 
 class CellularAutomaton:
     """
@@ -58,7 +87,6 @@ class CellularAutomaton:
         self.groups = []
         self.star = 10
         self.dissipation = 30
-        self.group_monitor = GroupMonitor()
 
     def get_density(self, i, j, radius=3):
         """
@@ -125,6 +153,9 @@ class CellularAutomaton:
         :param frame: Current frame
         :return: States of each agent in the grid
         """
+        #
+        densities = density_grid(self.get_grid_states())
+
         # Moving all agents in state 1
         newGrid = np.copy(self.grid)
         for i in range(self.size):
@@ -133,7 +164,7 @@ class CellularAutomaton:
                 agent.position = (i, j)
                 if agent.state == 1 or agent.state == 2 or agent.state == 3:  # Only move agents that are in state 1, 2 or 3
                     # Determine direction to move
-                    direction = agent.move(self.get_density, i, j, self.size)
+                    direction = agent.move(i, j, densities)
                     new_i, new_j = direction
 
                     # Swap agents if the new position is in state 0
@@ -155,19 +186,6 @@ class CellularAutomaton:
         # Update grid
         self.grid = newGrid
 
-        # Update groups and monitor as necessary
-        for group in self.groups:
-            group_updated = group.update(self.group_monitor)
-            if group.state == 2:
-                # If the group state is 2, add or update it in the monitor
-                if group.id not in self.group_monitor.group_dict:
-                    self.group_monitor.add_group(group)
-                else:
-                    self.group_monitor.update_group(group)
-            elif group.state != 2:
-                # If the group state is no longer 2, remove it from the monitor
-                self.group_monitor.remove_group(group)
-
         # Check if any agents are next to each other
         for i in range(self.size):
             for j in range(self.size):
@@ -185,11 +203,17 @@ class CellularAutomaton:
                                 new_group.append(neighboursAgent)
 
                         self.groups.append(new_group)
+                        continue
 
                     # If agent is next to an agent in state 2
                     neighbours = self.neighbours(i, j, 1, [2])
-                    if len(neighbours) > 2:
-                        neighbours[0].group.append(agent)
+                    if len(neighbours) > 0:
+                        for neighbour in neighbours:
+                            if neighbour.group:
+                                neighbour.group.append(agent)
+                                break
+                        continue
+
 
                     # If next to an agent in state 3
                     neighbours = self.neighbours(i, j, 1, [3])
@@ -197,18 +221,18 @@ class CellularAutomaton:
                         neighbours[0].group.append(agent)
 
 
-        # # Update groups
-        # remove_groups = []
-        # # print(len(self.groups))
-        # for i in range(len(self.groups)):
-        #     dissipation = self.groups[i].update()
-        #     if dissipation:
-        #         remove_groups.append(i)
+        # Update groups
+        remove_groups = []
+        # print(len(self.groups))
+        for i in range(len(self.groups)):
+            dissipation = self.groups[i].update()
+            if dissipation:
+                remove_groups.append(i)
 
-        # # Remove from groups
-        # for index in remove_groups:
-        #     self.groups.pop(index)
-        # # print(len(self.groups))
+        # Remove from groups
+        for index in remove_groups:
+            self.groups.pop(index)
+        # print(len(self.groups))
 
         return self.get_grid_states()
 
