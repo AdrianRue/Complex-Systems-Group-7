@@ -1,6 +1,7 @@
 import numpy as np
 from Group import Group
 from Agent import Agent
+from group_monitor import GroupMonitor
 
 class CellularAutomaton:
     """
@@ -57,6 +58,7 @@ class CellularAutomaton:
         self.groups = []
         self.star = 10
         self.dissipation = 30
+        self.group_monitor = GroupMonitor()
 
     def get_density(self, i, j, radius=3):
         """
@@ -153,6 +155,19 @@ class CellularAutomaton:
         # Update grid
         self.grid = newGrid
 
+        # Update groups and monitor as necessary
+        for group in self.groups:
+            group_updated = group.update(self.group_monitor)
+            if group.state == 2:
+                # If the group state is 2, add or update it in the monitor
+                if group.id not in self.group_monitor.group_dict:
+                    self.group_monitor.add_group(group)
+                else:
+                    self.group_monitor.update_group(group)
+            elif group.state != 2:
+                # If the group state is no longer 2, remove it from the monitor
+                self.group_monitor.remove_group(group)
+
         # Check if any agents are next to each other
         for i in range(self.size):
             for j in range(self.size):
@@ -182,18 +197,18 @@ class CellularAutomaton:
                         neighbours[0].group.append(agent)
 
 
-        # Update groups
-        remove_groups = []
-        # print(len(self.groups))
-        for i in range(len(self.groups)):
-            dissipation = self.groups[i].update()
-            if dissipation:
-                remove_groups.append(i)
+        # # Update groups
+        # remove_groups = []
+        # # print(len(self.groups))
+        # for i in range(len(self.groups)):
+        #     dissipation = self.groups[i].update()
+        #     if dissipation:
+        #         remove_groups.append(i)
 
-        # Remove from groups
-        for index in remove_groups:
-            self.groups.pop(index)
-        # print(len(self.groups))
+        # # Remove from groups
+        # for index in remove_groups:
+        #     self.groups.pop(index)
+        # # print(len(self.groups))
 
         return self.get_grid_states()
 
