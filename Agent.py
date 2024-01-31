@@ -63,6 +63,29 @@ class Agent:
 
 
 
+    def move_center(self, pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size):
+
+        # Compute vector
+        direction = [pos_agent_i - pos_c_i, pos_agent_j - pos_c_j]
+
+        # Round to nearest integer
+        direction[0] = find_nearest([-1, 0, 1], direction[0])
+        direction[1] = find_nearest([-1, 0, 1], direction[1])
+
+
+        pos_agent_i -= direction[0]
+        pos_agent_j -= direction[1]
+
+        # Wrap around if out of bounds
+        pos_agent_i %= size
+        pos_agent_j %= size
+
+        return pos_agent_i, pos_agent_j
+
+
+
+
+
     def dissipate(self, pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size):
 
         # Compute vector
@@ -87,9 +110,12 @@ class Agent:
         pos_agent_j %= size
 
         return pos_agent_i, pos_agent_j
+    
+
 
 
 def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
     return array[idx]
+

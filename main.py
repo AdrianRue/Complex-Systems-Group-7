@@ -8,23 +8,26 @@ from CellularAutomaton import CellularAutomaton
 # Initialize the argument parser
 parser = argparse.ArgumentParser(description='2D Cellular Automaton Star Formation Simulation', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--N', type=int, default=100, help='Grid size')
-parser.add_argument('--prob_gas', type=float, default=0.15, help='Probability of gas')
+parser.add_argument('--prob_gas', type=float, default=0.1, help='Probability of gas')
 parser.add_argument('--proto_size', type=int, default=35, help='Proto size')
-parser.add_argument('--star_size', type=int, default=200, help='Star size')
+parser.add_argument('--star_size', type=int, default=100, help='Star size')
+parser.add_argument('--steps_dissipating', type=int, default=30, help='Steps dissipation')
 
 # Parse the arguments
 args = parser.parse_args()
 
-def simulate(N, prob_gas, proto_size, star_size):
+def simulate(N, prob_gas, proto_size, star_size, steps_dissipating):
     assert isinstance(N, int) and N > 0, "Grid size N must be a positive integer."
     assert isinstance(prob_gas, float) and 0 <= prob_gas <= 1, "Probability of gas must be a float between 0 and 1."
     assert isinstance(proto_size, int) and 0 < proto_size <= N*N, "Proto size must be a positive integer and less than or equal to N."
     assert isinstance(star_size, int) and 0 < star_size <= N*N, "Star size must be a positive integer and less than or equal to N."
+    assert isinstance(steps_dissipating, int) and 0 < steps_dissipating, "Steps dissipating must be a positive integer."
+    
 
     p = [1-prob_gas, prob_gas]
 
     # Initialize the cellular automaton
-    automaton = CellularAutomaton(N, p, proto_size, star_size)
+    automaton = CellularAutomaton(N, p, proto_size, star_size, steps_dissipating)
 
     # Define colors for each state
     colors = {0: 'white',  # Color for state 0
@@ -51,4 +54,4 @@ def simulate(N, prob_gas, proto_size, star_size):
 
 if __name__ == "__main__":
     # Call the simulate function with arguments from the command line
-    simulate(args.N, args.prob_gas, args.proto_size, args.star_size)
+    simulate(args.N, args.prob_gas, args.proto_size, args.star_size, args.steps_dissipating)

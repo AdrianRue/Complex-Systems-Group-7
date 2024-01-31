@@ -1,3 +1,5 @@
+import numpy as np
+
 class Group:
     """
     Class representing a group of agents
@@ -84,7 +86,7 @@ class Group:
         return round(center_i), round(center_j)
 
 
-    def update(self):
+    def update(self,):
         """
         Updates the group
 
@@ -92,6 +94,12 @@ class Group:
         """
         # Check which state the group is in
         if self.state == 2:
+
+            center = self.calculate_center()
+            
+            for agent in self.agents:
+                agent.center_group = center
+
             # Check if the group is big enough to become a star
             if self.steps >= self.star and self.size >= self.star_size:
                 self.state = 3
@@ -100,12 +108,20 @@ class Group:
                 self.steps = 0
 
         elif self.state == 3:
+            
+            center = self.calculate_center()
+
+            for agent in self.agents:
+                agent.center_group = center
+
+
             # Check if the group is big enough to dissipate
-            if self.steps == self.dissipation:
+            if self.steps >= self.dissipation:
+                
                 self.state = 4
+
                 for agent in self.agents:
                     agent.state = self.state
-                    agent.center_group = self.calculate_center()
                 return True
 
         # Update steps
