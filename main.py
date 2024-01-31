@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.colors as mcolors
 import numpy as np
-from scipy.stats import powerlaw
+from scipy.stats import powerlaw, lognorm, expon
 
 from CellularAutomaton import CellularAutomaton
 
@@ -70,7 +70,7 @@ def simulate(N, prob_gas, proto_size, star_size, steps_dissipating):
 
 
 def check_powerlaw(prob_gas):
-    data = counts[1]
+    data = counts[2]
 
     # Prepare data for analysis
     hist, bin_edges = np.histogram(data, bins='auto', density=True)
@@ -79,10 +79,21 @@ def check_powerlaw(prob_gas):
     # Fit the data to a power-law distribution
     a, loc, scale = powerlaw.fit(data)
 
+    # Fit the data to a lognormal distribution
+    # shape, loc, scale = lognorm.fit(data, floc=0)
+    # lognormal_pdf = lognorm.pdf(bin_centers, shape, loc=loc, scale=scale)
+
+    # Fit the data to an exponential distribution
+    param = expon.fit(data, floc=0)
+    exponential_pdf = expon.pdf(bin_centers, *param)
+
+
 
     # Plot the data on a log-log scale
     plt.loglog(bin_centers, hist, 'o', label='bin_centers')
-    plt.loglog(bin_centers, powerlaw.pdf(bin_centers, a, loc, scale), '-', label='powerlaw fit')
+    plt.loglog(bin_centers, powerlaw.pdf(bin_centers, a, loc, scale), '-', label='powerlaw fit')    # Plot the powerlaw fit
+    # plt.loglog(bin_centers, lognormal_pdf, '-', label='Lognormal fit')                              # Plot the lognormal fit
+    plt.loglog(bin_centers, exponential_pdf, '-', label='Exponential fit')                          # Plot the exponential fit
     plt.xlabel('Count')
     plt.ylabel('Probability Density')
     plt.title(f'Log-Log Plot with Power Law Fit (Gas Density {prob_gas})')
@@ -91,24 +102,24 @@ def check_powerlaw(prob_gas):
 
 
 if __name__ == "__main__":
-    # probs_gas = np.arange(0.01, 0.21, 0.05)
-    probs_gas = [0.15]
+    # probs_gas = np.arange(0.01, 0.51, 0.1)
+    probs_gas = [0.1]
 
     for prob_gas in probs_gas:
         # Call the simulate function with arguments from the command line
-        simulate(args.N, args.prob_gas, args.proto_size, args.star_size, args.steps_dissipating)
+        simulate(args.N, prob_gas, args.proto_size, args.star_size, args.steps_dissipating)
         check_powerlaw(prob_gas)
 
-        labels = {1: "gas", 2: "Protostar", 3: "Star"}
+        # labels = {1: "gas", 2: "Protostar", 3: "Star"}
 
-        # Plotting the time series data     
-        time_steps = range(len(counts[1]))
-        plt.figure()
-        for state in counts:
-            plt.plot(time_steps, counts[state], label=f'State {labels[state]}')
-        plt.xlabel('Time Step')
-        plt.ylabel('Count')
-        plt.title('State Counts Over Time')
-        plt.legend()
-        plt.xlim(left=150)
-        plt.show()
+        # # Plotting the time series data     
+        # time_steps = range(len(counts[1]))
+        # plt.figure()
+        # for state in counts:
+        #     plt.plot(time_steps, counts[state], label=f'State {labels[state]}')
+        # plt.xlabel('Time Step')
+        # plt.ylabel('Count')
+        # plt.title('State Counts Over Time')
+        # plt.legend()
+        # plt.xlim(left=150)
+        # plt.show()
