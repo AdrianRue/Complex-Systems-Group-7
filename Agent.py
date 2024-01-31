@@ -76,54 +76,76 @@ class Agent:
 
     def dissipate(self, pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size):
 
-        vec_i = pos_c_i - pos_agent_i
-        vec_j = pos_c_j - pos_agent_j
+        vec_y = abs(pos_agent_i - pos_c_i)
+        vec_x = abs(pos_agent_j - pos_c_j)
         angle = 0
 
-        if vec_i != 0 and vec_j != 0:
+        
 
-            angle = math.degrees(math.atan(vec_j/vec_i))
-            print(angle)
+        if pos_agent_i < pos_c_i and pos_agent_j > pos_c_j:
+
+            angle = math.degrees(math.asin(vec_x / math.sqrt(((vec_x ** 2) + (vec_y ** 2)))))
+
+            if  angle >=0 or angle < 22.5:
+                return (pos_agent_i - 1) % size, pos_agent_j
+            elif angle >= 22.5 and angle < 67.5:
+                return (pos_agent_i - 1) % size, (pos_agent_j + 1) % size
+            elif angle >= 67.5 and angle < 90:
+                return pos_agent_i, (pos_agent_j + 1) % size
             
-        elif vec_i == 0:
+
+        elif pos_agent_i > pos_c_i and pos_agent_j > pos_c_j:
+
+            angle = math.degrees(math.asin(vec_x / math.sqrt(((vec_x ** 2) + (vec_y ** 2)))))
+
+            if  angle >=0 or angle < 22.5:
+                return pos_agent_i, (pos_agent_j + 1) % size
+            elif angle >= 22.5 and angle < 67.5:
+                return (pos_agent_i + 1) % size, (pos_agent_j + 1) % size
+            elif angle >= 67.5 and angle < 90:
+                return (pos_agent_i + 1) % size, pos_agent_j
+            
+
+
+        elif pos_agent_i > pos_c_i and pos_agent_j < pos_c_j:
+
+            angle = math.degrees(math.asin(vec_x / math.sqrt(((vec_x ** 2) + (vec_y ** 2)))))
+
+            if  angle >=0 or angle < 22.5:
+                return (pos_agent_i + 1) % size, pos_agent_j
+            elif angle >= 22.5 and angle < 67.5:
+                return (pos_agent_i + 1) % size, (pos_agent_j - 1) % size
+            elif angle >= 67.5 and angle < 90:
+                return pos_agent_i, (pos_agent_j - 1) % size
+            
+        elif pos_agent_i < pos_c_i and pos_agent_j < pos_c_j:
+
+            angle = math.degrees(math.asin(vec_x / math.sqrt(((vec_x ** 2) + (vec_y ** 2)))))
+
+            if  angle >=0 or angle < 22.5:
+                return pos_agent_i, (pos_agent_j - 1) % size
+            elif angle >= 22.5 and angle < 67.5:
+                return (pos_agent_i - 1) % size, (pos_agent_j - 1) % size
+            elif angle >= 67.5 and angle < 90:
+                return (pos_agent_i - 1) % size, pos_agent_j
+            
+        elif vec_y == 0:
 
             if pos_agent_j > pos_c_j:
-
                 return pos_agent_i, (pos_agent_j + 1) % size
             
             elif pos_agent_j < pos_c_j:
-                
                 return pos_agent_i, (pos_agent_j - 1) % size
-        
-        elif vec_j == 0:
+            
+        elif vec_x == 0:
 
             if pos_agent_i > pos_c_i:
-
                 return (pos_agent_i - 1) % size, pos_agent_j
             
             elif pos_agent_i > pos_c_i:
-
                 return (pos_agent_i + 1) % size, pos_agent_j
-
-
-        if  angle >= 337.5 or angle < 22.5:
-            return (pos_agent_i - 1) % size, pos_agent_j
-        elif angle >= 22.5 and angle < 67.5:
-            return (pos_agent_i - 1) % size, (pos_agent_j + 1) % size
-        elif angle >= 67.5 and angle < 112.5:
-            return pos_agent_i, (pos_agent_j + 1) % size
-        elif angle >= 112.5 and angle < 157.5:
-            return (pos_agent_i + 1) % size, (pos_agent_j + 1) % size
-        elif angle >= 157.5 and angle < 202.5:
-            return (pos_agent_i + 1) % size, pos_agent_j
-        elif angle >= 202.5 and angle < 247.5:
-            return (pos_agent_i + 1) % size, (pos_agent_j - 1) % size
-        elif angle >= 247.5 and angle < 292.5:
-            return pos_agent_i, (pos_agent_j - 1) % size
-        elif angle >= 292.5 and angle < 337.5:
-            return (pos_agent_i - 1) % size, (pos_agent_j - 1) % size
+        
         else:
             return pos_agent_i, pos_agent_j
 
-
-
+        
