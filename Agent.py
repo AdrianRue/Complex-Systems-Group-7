@@ -100,76 +100,103 @@ class Agent:
 
     def dissipate(self, pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size):
 
-        vec_y = abs(pos_agent_i - pos_c_i)
-        vec_x = abs(pos_agent_j - pos_c_j)
-        angle = 0
+        # vec_y = abs(pos_agent_i - pos_c_i)
+        # vec_x = abs(pos_agent_j - pos_c_j)
+        # angle = 0
+        #
+        #
+        #
+        # if pos_agent_i < pos_c_i and pos_agent_j > pos_c_j:
+        #
+        #     angle = math.degrees(math.asin(vec_x / math.sqrt(((vec_x ** 2) + (vec_y ** 2)))))
+        #
+        #     if  angle >=0 or angle < 22.5:
+        #         return (pos_agent_i - 1) % size, pos_agent_j
+        #     elif angle >= 22.5 and angle < 67.5:
+        #         return (pos_agent_i - 1) % size, (pos_agent_j + 1) % size
+        #     elif angle >= 67.5 and angle < 90:
+        #         return pos_agent_i, (pos_agent_j + 1) % size
+        #
+        #
+        # elif pos_agent_i > pos_c_i and pos_agent_j > pos_c_j:
+        #
+        #     angle = math.degrees(math.asin(vec_x / math.sqrt(((vec_x ** 2) + (vec_y ** 2)))))
+        #
+        #     if  angle >=0 or angle < 22.5:
+        #         return pos_agent_i, (pos_agent_j + 1) % size
+        #     elif angle >= 22.5 and angle < 67.5:
+        #         return (pos_agent_i + 1) % size, (pos_agent_j + 1) % size
+        #     elif angle >= 67.5 and angle < 90:
+        #         return (pos_agent_i + 1) % size, pos_agent_j
+        #
+        #
+        #
+        # elif pos_agent_i > pos_c_i and pos_agent_j < pos_c_j:
+        #
+        #     angle = math.degrees(math.asin(vec_x / math.sqrt(((vec_x ** 2) + (vec_y ** 2)))))
+        #
+        #     if  angle >=0 or angle < 22.5:
+        #         return (pos_agent_i + 1) % size, pos_agent_j
+        #     elif angle >= 22.5 and angle < 67.5:
+        #         return (pos_agent_i + 1) % size, (pos_agent_j - 1) % size
+        #     elif angle >= 67.5 and angle < 90:
+        #         return pos_agent_i, (pos_agent_j - 1) % size
+        #
+        # elif pos_agent_i < pos_c_i and pos_agent_j < pos_c_j:
+        #
+        #     angle = math.degrees(math.asin(vec_x / math.sqrt(((vec_x ** 2) + (vec_y ** 2)))))
+        #
+        #     if  angle >=0 or angle < 22.5:
+        #         return pos_agent_i, (pos_agent_j - 1) % size
+        #     elif angle >= 22.5 and angle < 67.5:
+        #         return (pos_agent_i - 1) % size, (pos_agent_j - 1) % size
+        #     elif angle >= 67.5 and angle < 90:
+        #         return (pos_agent_i - 1) % size, pos_agent_j
+        #
+        # elif vec_y == 0:
+        #
+        #     if pos_agent_j > pos_c_j:
+        #         return pos_agent_i, (pos_agent_j + 1) % size
+        #
+        #     elif pos_agent_j < pos_c_j:
+        #         return pos_agent_i, (pos_agent_j - 1) % size
+        #
+        # elif vec_x == 0:
+        #
+        #     if pos_agent_i > pos_c_i:
+        #         return (pos_agent_i - 1) % size, pos_agent_j
+        #
+        #     elif pos_agent_i > pos_c_i:
+        #         return (pos_agent_i + 1) % size, pos_agent_j
+        #
+        # else:
+        #     return pos_agent_i, pos_agent_j
 
-        
+        # Compute vector
+        direction = [pos_agent_i - pos_c_i, pos_agent_j - pos_c_j]
 
-        if pos_agent_i < pos_c_i and pos_agent_j > pos_c_j:
+        # Round to nearest integer
+        direction[0] = find_nearest([-1, 0, 1], direction[0])
+        direction[1] = find_nearest([-1, 0, 1], direction[1])
 
-            angle = math.degrees(math.asin(vec_x / math.sqrt(((vec_x ** 2) + (vec_y ** 2)))))
+        directions = [
+                [-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]
+            ]
+        if direction[0] == 0 and direction[1] == 0:
+            direction = np.random.choice(range(len(directions)))
+            direction = directions[direction]
 
-            if  angle >=0 or angle < 22.5:
-                return (pos_agent_i - 1) % size, pos_agent_j
-            elif angle >= 22.5 and angle < 67.5:
-                return (pos_agent_i - 1) % size, (pos_agent_j + 1) % size
-            elif angle >= 67.5 and angle < 90:
-                return pos_agent_i, (pos_agent_j + 1) % size
-            
+        pos_agent_i += direction[0]
+        pos_agent_j += direction[1]
 
-        elif pos_agent_i > pos_c_i and pos_agent_j > pos_c_j:
+        # Wrap around if out of bounds
+        pos_agent_i %= size
+        pos_agent_j %= size
 
-            angle = math.degrees(math.asin(vec_x / math.sqrt(((vec_x ** 2) + (vec_y ** 2)))))
-
-            if  angle >=0 or angle < 22.5:
-                return pos_agent_i, (pos_agent_j + 1) % size
-            elif angle >= 22.5 and angle < 67.5:
-                return (pos_agent_i + 1) % size, (pos_agent_j + 1) % size
-            elif angle >= 67.5 and angle < 90:
-                return (pos_agent_i + 1) % size, pos_agent_j
-            
+        return pos_agent_i, pos_agent_j
 
 
-        elif pos_agent_i > pos_c_i and pos_agent_j < pos_c_j:
-
-            angle = math.degrees(math.asin(vec_x / math.sqrt(((vec_x ** 2) + (vec_y ** 2)))))
-
-            if  angle >=0 or angle < 22.5:
-                return (pos_agent_i + 1) % size, pos_agent_j
-            elif angle >= 22.5 and angle < 67.5:
-                return (pos_agent_i + 1) % size, (pos_agent_j - 1) % size
-            elif angle >= 67.5 and angle < 90:
-                return pos_agent_i, (pos_agent_j - 1) % size
-            
-        elif pos_agent_i < pos_c_i and pos_agent_j < pos_c_j:
-
-            angle = math.degrees(math.asin(vec_x / math.sqrt(((vec_x ** 2) + (vec_y ** 2)))))
-
-            if  angle >=0 or angle < 22.5:
-                return pos_agent_i, (pos_agent_j - 1) % size
-            elif angle >= 22.5 and angle < 67.5:
-                return (pos_agent_i - 1) % size, (pos_agent_j - 1) % size
-            elif angle >= 67.5 and angle < 90:
-                return (pos_agent_i - 1) % size, pos_agent_j
-            
-        elif vec_y == 0:
-
-            if pos_agent_j > pos_c_j:
-                return pos_agent_i, (pos_agent_j + 1) % size
-            
-            elif pos_agent_j < pos_c_j:
-                return pos_agent_i, (pos_agent_j - 1) % size
-            
-        elif vec_x == 0:
-
-            if pos_agent_i > pos_c_i:
-                return (pos_agent_i - 1) % size, pos_agent_j
-            
-            elif pos_agent_i > pos_c_i:
-                return (pos_agent_i + 1) % size, pos_agent_j
-        
-        else:
-            return pos_agent_i, pos_agent_j
-
-        
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return array[idx]

@@ -217,8 +217,12 @@ class CellularAutomaton:
 
                     # If next to an agent in state 3
                     neighbours = self.neighbours(i, j, 1, [3])
-                    if len(neighbours) > 2:
-                        neighbours[0].group.append(agent)
+                    if len(neighbours) > 0:
+                        for neighbour in neighbours:
+                            if neighbour.group:
+                                neighbour.group.append(agent)
+                                break
+                        continue
 
 
         # Update groups
