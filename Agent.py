@@ -1,5 +1,4 @@
 import numpy as np
-import math
 
 class Agent:
     """
@@ -39,6 +38,14 @@ class Agent:
 
 
     def move(self, i, j, grid):
+        """
+        Returns the new position of the agent if the agent is not dissipating
+
+        :param i: Vertical position of the agent
+        :param j: Horizontal position of the agent
+        :param grid: Grid with the densities of the agents
+        :return: New position of the agent
+        """
 
         movement = []
         densities = []
@@ -87,23 +94,39 @@ class Agent:
 
 
     def dissipate(self, pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size):
+        """
+        Returns the new position of the agent if dissipation is happening
+
+        :param pos_c_i: Vertical position of the center of the group
+        :param pos_c_j: Horizontal position of the center of the group
+        :param pos_agent_i: Vertical position of the agent
+        :param pos_agent_j: Horizontal position of the agent
+        :param size: Size of the grid
+        :return: New position of the agent
+        """
+
 
         # Compute vector
-        direction = [pos_agent_i - pos_c_i, pos_agent_j - pos_c_j]
+        movement = [pos_agent_i - pos_c_i, pos_agent_j - pos_c_j]
 
         # Round to nearest integer
-        direction[0] = find_nearest([-1, 0, 1], direction[0])
-        direction[1] = find_nearest([-1, 0, 1], direction[1])
+        movement[0] = find_nearest([-1, 0, 1], movement[0])
+        movement[1] = find_nearest([-1, 0, 1], movement[1])
 
+        # Possible directions
         directions = [
                 [-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]
             ]
-        if direction[0] == 0 and direction[1] == 0:
-            direction = np.random.choice(range(len(directions)))
-            direction = directions[direction]
 
-        pos_agent_i += direction[0]
-        pos_agent_j += direction[1]
+        # If the direction is 0,0, choose a random direction
+        if movement[0] == 0 and movement[1] == 0:
+            # Choose a random direction
+            direction = np.random.choice(range(len(directions)))
+            movement = directions[direction]
+
+        # New position of the agent
+        pos_agent_i += movement[0]
+        pos_agent_j += movement[1]
 
         # Wrap around if out of bounds
         pos_agent_i %= size
@@ -115,6 +138,14 @@ class Agent:
 
 
 def find_nearest(array, value):
+    """
+    Returns the nearest value in an array to a given value. Used in the dissipate function to
+    determine the direction of the agent.
+
+    :param array: Array to search in
+    :param value: Value to search for
+    :return: Closest value in the array to the given value
+    """
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
     return array[idx]
