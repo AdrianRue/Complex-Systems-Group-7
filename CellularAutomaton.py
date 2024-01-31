@@ -163,28 +163,29 @@ class CellularAutomaton:
             for j in range(self.size):
                 agent = self.grid[i, j]
                 agent.position = (i, j)
-                if agent.state == 1:
+                if agent.state == 1 or agent.state == 2 or agent.state == 3:
                     # Determine direction to move
-                    direction = agent.move(i, j, densities)
-                    new_i, new_j = direction
+                    direction = agent.move(i, j, densities, self.grid)
+                    if direction:
+                        new_i, new_j = direction
 
-                    # Swap agents if the new position is in state 0
-                    if newGrid[new_i, new_j].state == 0:
-                        newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-                        agent.position = (new_i, new_j)
-
-                if agent.state == 2 or agent.state == 3:
-
-                    direction = agent.move_center(agent.center_group[0], agent.center_group[1], i, j, self.size)
-                    new_i, new_j = direction
-
-                    if newGrid[new_i, new_j].state == 0:
-                        newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-                        agent.position = (new_i, new_j)
+                        # Swap agents if the new position is in state 0
+                        if newGrid[new_i, new_j].state == 0:
+                            newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+                            agent.position = (new_i, new_j)
+                #
+                # if agent.state == 2 or agent.state == 3:
+                #
+                #     direction = agent.move_center(agent.center_group[0], agent.center_group[1], i, j, self.size)
+                #     new_i, new_j = direction
+                #
+                #     if newGrid[new_i, new_j].state == 0:
+                #         newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
+                #         agent.position = (new_i, new_j)
 
 
                 if agent.state == 4:
-
+                    assert agent, f"Agent is none"
                     direction = agent.dissipate(agent.center_group[0], agent.center_group[1], i, j, self.size)
                     new_i, new_j = direction
 

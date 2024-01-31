@@ -37,7 +37,7 @@ class Agent:
 
 
 
-    def move(self, i, j, grid):
+    def move(self, i, j, density_grid, grid):
         """
         Returns the new position of the agent if the agent is not dissipating
 
@@ -54,19 +54,27 @@ class Agent:
                 if di == 0 and dj == 0:
                     continue
 
-                ni, nj = (i + di) % grid.shape[0], (j + dj) % grid.shape[1]
+                ni, nj = (i + di) % grid.shape[0], (j + dj) % density_grid.shape[1]
                 movement.append((ni, nj))
-                densities.append(grid[ni, nj])
+                densities.append(density_grid[ni, nj] * (grid[ni, nj].state == 0))
         densities_sum = np.sum(densities)
 
-        if densities_sum == 0:
-            direction = np.random.choice(range(len(movement)))
+        if self.state == 1:
+            if densities_sum == 0:
+                direction = np.random.choice(range(len(movement)))
+
+            else:
+                probabilities = np.array(densities) / densities_sum
+                direction = np.random.choice(range(len(movement)), p=probabilities)
+
+            return movement[direction]
 
         else:
-            probabilities = np.array(densities) / densities_sum
-            direction = np.random.choice(range(len(movement)), p=probabilities)
+            direction = np.argmax(densities)
+            movement = movement[direction]
 
-        return movement[direction]
+            if density_grid[i, j] < density_grid[movement]:
+                return movement
 
 
 
@@ -88,9 +96,6 @@ class Agent:
         pos_agent_j %= size
 
         return pos_agent_i, pos_agent_j
-
-
-
 
 
     def dissipate(self, pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size):
