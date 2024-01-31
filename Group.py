@@ -1,6 +1,3 @@
-import numpy as np
-from group_monitor import GroupMonitor
-
 class Group:
     """
     Class representing a group of agents
@@ -53,8 +50,6 @@ class Group:
         self.dissipation = dissipation
         self.state = 2
         agent.state = self.state
-        self.id = None
-        self.group_monitor = GroupMonitor()
 
     def append(self, agent):
         """
@@ -87,49 +82,22 @@ class Group:
         center_j = total_j / counter
 
         return round(center_i), round(center_j)
-    
 
-    def calculate_distance(center1, center2):
+
+    def update(self):
         """
-        Calculate Euclidean distance between two centers.
+        Updates the group
 
-        """
-        return np.sqrt((center1[0] - center2[0])**2 + (center1[1] - center2[1])**2)
-
-
-
-    def update(self, group_monitor):
-        """
-        Updates the group.
-
-        :param group_monitor: An instance of Group_monitor to check distances between groups
         :return: boolean indicating if the group has dissipated
         """
         # Check which state the group is in
         if self.state == 2:
-            # Update the group's center in the monitor
-            self.group_monitor.update_group(self)
-
-            # Check for proximity with other groups in state 2
-            for other_id, other_center in self.group_monitor.group_dict.items():
-                if other_id != self.id:
-                    distance = self.calculate_distance(self.calculate_center(), other_center)
-                    if distance < 30:
-                        other_group = self.group_monitor.get_group(other_id)
-                        if other_group and other_group.steps >= other_group.star and other_group.size >= other_group.star_size:
-                            self.state = 3
-                            other_group.state = 3
-                            for agent in self.agents:
-                                agent.state = self.state
-                            for agent in other_group.agents:
-                                agent.state = other_group.state
-                            self.steps = 0
-                            other_group.steps = 0
-                            # Assuming you remove groups from monitor when state changes from 2
-                            self.group_monitor.remove_group(self)
-                            self.group_monitor.remove_group(other_group)
-                            break  # Assuming merge with one group at a time
-
+            # Check if the group is big enough to become a star
+            if self.steps >= self.star and self.size >= self.star_size:
+                self.state = 3
+                for agent in self.agents:
+                    agent.state = self.state
+                self.steps = 0
 
         elif self.state == 3:
             # Check if the group is big enough to dissipate
@@ -140,7 +108,5 @@ class Group:
                     agent.center_group = self.calculate_center()
                 return True
 
-            # Update steps
-            self.steps += 1
-        return False
-
+        # Update steps
+        self.steps += 1
