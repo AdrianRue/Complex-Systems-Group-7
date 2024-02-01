@@ -3,11 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def simulate(N, probs_gas, frames=2000, runs=5, proto_size=35, star_size=200, steps_dissipating=50):
+def simulate(N, probs_gas, frames=1000, runs=10, proto_size=25, star_size=100, steps_dissipating=50):
     results = []
     for prob_gas in probs_gas:
+        print('Simulating for prob_gas =', prob_gas)
         emergence = [prob_gas, 0, 0]
         for i in range(runs):
+            print('Run', i+1, 'of', runs)
             p = [1 - prob_gas, prob_gas]
 
             # Initialize the cellular automaton
@@ -35,9 +37,12 @@ def simulate(N, probs_gas, frames=2000, runs=5, proto_size=35, star_size=200, st
         # Add to results
         results.append(emergence)
 
+        print(emergence)
+        print('')
+
     results = np.array(results)
     # Save results
-    np.savetxt('results/emergence2.txt', results, delimiter=',')
+    np.savetxt('results/emergence.txt', results, delimiter=',')
 
     # Plot results
     plot_transitions(results)
@@ -81,7 +86,7 @@ def load_results(file, save=None):
 
 if __name__ == '__main__':
     # N = 100
-    # probs_gas = np.linspace(0.25, 0.4, 10, endpoint=True)
+    # probs_gas = np.linspace(0.02, 0.2, 10, endpoint=True)
     # simulate(N, probs_gas)
     load_results('results/emergence.txt', 'figures/emergence.png')
 
