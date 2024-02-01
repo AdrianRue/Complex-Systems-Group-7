@@ -12,11 +12,17 @@ class Agent:
         Group the agent belongs to
     position : tuple
         Position of the agent in the grid
+    days_dissipate : int
+        Number of days the agent has been dissipating
+    center_group : tuple
+        The center position of the group
 
     Methods
     -------
     move(get_density_func, i, j, size)
         Returns the new position of the agent
+    move_center(pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size)
+        Move particle towards the center of the group
     dissipation(pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size)
         Returns the new position of the agent if dissipation is happening
     """
@@ -31,6 +37,7 @@ class Agent:
         self.group = None
         self.position = None
         self.days_dissipate = 0
+        self.center_group = None
 
 
 
@@ -76,6 +83,16 @@ class Agent:
 
 
     def move_center(self, pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size):
+        """
+        Move particle towards the center of the group
+
+        :param pos_c_i: Vertical position of the center of the group
+        :param pos_c_j: Horizontal position of the center of the group
+        :param pos_agent_i: Vertical position of the agent
+        :param pos_agent_j: Horizontal position of the agent
+        :param size: Size of the grid
+        :return: New position of the agent
+        """
 
         # Compute vector
         direction = [pos_agent_i - pos_c_i, pos_agent_j - pos_c_j]
@@ -144,8 +161,6 @@ class Agent:
             direction = np.random.choice(range(len(directions)))
             movement = directions[direction]
 
-
-        
 
         if abs(self.center_group[0] - pos_agent_i) > self.group.size / 4:
             pos_agent_i -= movement[0]

@@ -20,6 +20,8 @@ class Group:
         Time needed for a star to dissipate
     state : int
         State of the group
+    merged : boolean
+        Boolean indicating if the group has been merged with another group
 
     Methods
     -------
@@ -29,6 +31,8 @@ class Group:
         Calculates the center of the group
     update()
         Updates the group
+    merge(group)
+        Merges another group into this group
 
     """
     def __init__(self, agent, star_size, star, dissipation):
