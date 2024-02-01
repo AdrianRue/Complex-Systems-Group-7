@@ -15,8 +15,8 @@ def simulate(N, probs_gas, frames=2000, runs=5, proto_size=35, star_size=200, st
 
             proto = False
             star = False
-            for i in range(frames):
-                states = automaton.update(i)
+            for j in range(frames):
+                states = automaton.update(j)
 
                 if 2 in states:
                     proto = True
@@ -37,28 +37,54 @@ def simulate(N, probs_gas, frames=2000, runs=5, proto_size=35, star_size=200, st
 
     results = np.array(results)
     # Save results
-    np.savetxt('results/emergence.txt', results, delimiter=',')
+    np.savetxt('results/emergence2.txt', results, delimiter=',')
 
+    # Plot results
+    plot_transitions(results)
+
+def plot_transitions(data):
     # Create figure
     fig, ax = plt.subplots(2)
 
-    # First plot
-    ax[0].plot(results[:, 0], results[:, 1])
-    ax[0].set_title('Emergence of proto-star')
+    # Titles
+    titles = ['Emergence of proto-star', 'Emergence of star']
 
-    # Second plot
-    ax[1].plot(results[:, 0], results[:, 2])
-    ax[1].set_title('Emergence of star')
+    for i in range(2):
+        # Plot
+        ax[i].plot(data[:, 0], data[:, i+1])
 
+        # Labels and title
+        ax[i].set_title(titles[i])
+        ax[i].set_xlabel('Gas density')
+        ax[i].set_ylabel('Probability of emergence')
+
+        # Grid
+        ax[i].grid()
+
+    # Tight layout
     fig.tight_layout()
 
     # Show figure
     plt.show()
 
+    return fig, ax
+
+def load_results(file, save=None):
+    # Load results
+    results = np.loadtxt(file, delimiter=',')
+
+    # Plot
+    fig, ax = plot_transitions(results)
+
+    if save:
+        fig.savefig(save, dpi=300)
+
 if __name__ == '__main__':
-    N = 100
-    probs_gas = np.arange(0.05, 0.55, 0.05)
-    simulate(N, probs_gas)
+    # N = 100
+    # probs_gas = np.linspace(0.25, 0.4, 10, endpoint=True)
+    # simulate(N, probs_gas)
+    load_results('results/emergence.txt', 'figures/emergence.png')
+
 
 
 
