@@ -19,7 +19,7 @@ def density_grid(states, radius=5):
 
     for i in range(states.shape[0]):
         for j in range(states.shape[1]):
-        # Get neighbors
+            # Get neighbors
             for di in range(-radius, radius + 1):
                 for dj in range(-radius, radius + 1):
 
@@ -154,15 +154,20 @@ class CellularAutomaton:
         :param frame: Current frame
         :return: States of each agent in the grid
         """
-        #
+        # Get densities
         densities = density_grid(self.get_grid_states())
 
-        # Moving all agents in state 1
+        # Create a new grid
         newGrid = np.copy(self.grid)
+
+        # Loop through each agent
         for i in range(self.size):
             for j in range(self.size):
+                # Get agent
                 agent = self.grid[i, j]
                 agent.position = (i, j)
+
+                # If agent is not in state 0 nor 4
                 if agent.state == 1 or agent.state == 2 or agent.state == 3:
                     # Determine direction to move
                     direction = agent.move(i, j, densities, self.grid)
@@ -173,30 +178,19 @@ class CellularAutomaton:
                         if newGrid[new_i, new_j].state == 0:
                             newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
                             agent.position = (new_i, new_j)
-                #
-                # if agent.state == 2 or agent.state == 3:
-                #
-                #     direction = agent.move_center(agent.center_group[0], agent.center_group[1], i, j, self.size)
-                #     new_i, new_j = direction
-                #
-                #     if newGrid[new_i, new_j].state == 0:
-                #         newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
-                #         agent.position = (new_i, new_j)
 
-
+                # If agent is dissipating
                 if agent.state == 4:
-                    assert agent, f"Agent is none"
                     direction = agent.dissipate(i, j, self.size)
                     new_i, new_j = direction
 
-                    
+                    # Update position
                     newGrid[new_i, new_j], newGrid[i, j] = newGrid[i, j], newGrid[new_i, new_j]
                     agent.position = (new_i, new_j)
-                    
+
+                    # Update dissipation days and state
                     agent.days_dissipate += 1
-
                     if agent.days_dissipate >= 5:
-
                         agent.days_dissipate = 0
                         agent.state = 1
 
@@ -221,6 +215,7 @@ class CellularAutomaton:
                             if neighboursAgent.state == 1:
                                 new_group.append(neighboursAgent)
 
+                        # Add group to list
                         self.groups.append(new_group)
                         continue
 
@@ -243,23 +238,28 @@ class CellularAutomaton:
                                 break
                         continue
 
+                # Check for merging groups
                 elif agent.state == 2 or agent.state == 3:
                     neighbours = self.neighbours(i, j, 1, [2, 3])
                     if len(neighbours) > 0:
                         for neighbour in neighbours:
+                            # Both agents have a group
                             if agent.group and neighbour.group:
+                                # If they are not in the same group
                                 if neighbour.group != agent.group and neighbour.group:
+                                    # Merge lower state group into higher state group
                                     if neighbour.state > agent.state:
                                         neighbour.group.merge(agent.group)
                                     else:
-
                                         agent.group.merge(neighbour.group)
                         continue
 
-        # Update groups
+        # Storing groups that are not deleted
         updated_groups = []
 
+        # Looping through each group
         for group in self.groups:
+            # Check if group has been merged into another group
             if group.merged:
                 del group
                 continue
@@ -274,6 +274,7 @@ class CellularAutomaton:
             else:
                 del group
 
+        # Update groups
         self.groups = updated_groups
         return self.get_grid_states()
 

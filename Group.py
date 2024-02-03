@@ -80,30 +80,30 @@ class Group:
         total_i = 0
         total_j = 0
         counter = 0
-        
+
+        # Loop through all agents
         for i in range(len(self.agents)):
             total_i += self.agents[i].position[0]
             total_j += self.agents[i].position[1]
-
             counter += 1
-        
+
+        # Calculate the center
         center_i = total_i / counter
         center_j = total_j / counter
 
         return round(center_i), round(center_j)
 
 
-    def update(self,):
+    def update(self):
         """
         Updates the group
 
         :return: boolean indicating if the group has dissipated
         """
-        # Check which state the group is in
+        # Proto-star group
         if self.state == 2:
-
             center = self.calculate_center()
-            
+
             for agent in self.agents:
                 agent.center_group = center
 
@@ -114,10 +114,9 @@ class Group:
                     agent.state = self.state
                 self.steps = 0
 
+        # Star group
         elif self.state == 3:
-            
             center = self.calculate_center()
-
             for agent in self.agents:
                 agent.center_group = center
 
@@ -149,12 +148,12 @@ class Group:
 
         :param group: Group to be merged with
         """
+        # Add all agents from the other group to this group
         for agent in group.agents:
             self.append(agent)
 
+        # Set the other group to be merged
         group.merged = True
 
-
+        # Update the steps
         self.steps = max(self.steps, group.steps)
-
-
