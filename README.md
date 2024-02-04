@@ -24,7 +24,7 @@ pip install -r requirements.txt
 ```
 
 ### Testing
-To test the functionalities run:
+Testing of input is done via assert statements. To test the functionalities using pytest run in the main foleder:
 ```
 pytest
 ```
