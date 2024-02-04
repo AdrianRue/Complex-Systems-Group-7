@@ -25,7 +25,7 @@ pip install numpy matplotlib
 
 ### File Descriptions
 `Agent.py`: Defines the Agent class, which represents astrophysical entities in the simulation.
-CellularAutomaton.py: Contains the CellularAutomaton class that models the cellular space and rules for star formation.
+`CellularAutomaton.py`: Contains the CellularAutomaton class that models the cellular space and rules for star formation.
 `Group.py`: Contains the Group class for managing collections of agents.
 `main.py`: The main script for initializing and running the simulation.
 ### Results
