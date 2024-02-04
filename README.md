@@ -1,6 +1,4 @@
-# Complex-Systems-Group-7
-
-# Cellular Automata Star Formation Simulation
+# Cellular Automata Star Formation Simulation(group 7)
 
 ![Animation](https://github.com/AdrianRue/Complex-Systems-Group-7/blob/main/Resultdisplay.GIF "Star Formation")
 
