@@ -121,11 +121,10 @@ def check_pearson(probs_gas):
 
 if __name__ == "__main__":
     if args.one == True:
-        probs_gas = [0.15]
+        probs_gas = [args.prob_gas]
     else:
         probs_gas = np.arange(0.02, 0.21, 0.045)
 
-    print(probs_gas)
     star_formations = []
     for prob_gas in probs_gas:
         # Call the simulate function with arguments from the command line

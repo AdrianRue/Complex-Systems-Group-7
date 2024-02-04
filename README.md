@@ -39,6 +39,7 @@ pytest
 `main.py`: The main script for initializing and running the simulation.
 
 ### Usage
+For speed purposed, no animation is shown during the simulation. When the run is done, check out the result in the results folder.
 ```
 usage: main.py [-h] [--one ONE] [--N N] [--prob_gas PROB_GAS] [--proto_size PROTO_SIZE] [--star_size STAR_SIZE] [--steps_dissipating STEPS_DISSIPATING]
 
