@@ -42,7 +42,7 @@ def simulate(N, probs_gas, frames=1000, runs=10, proto_size=25, star_size=100, s
 
     results = np.array(results)
     # Save results
-    np.savetxt('results/emergence.txt', results, delimiter=',')
+    np.savetxt('results/phase_transition/phase_transition.txt', results, delimiter=',')
 
     # Plot results
     plot_transitions(results)
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     # N = 100
     # probs_gas = np.linspace(0.02, 0.2, 10, endpoint=True)
     # simulate(N, probs_gas)
-    load_results('results/emergence.txt', 'figures/emergence.png')
+    load_results('results/phase_transition/phase_transition.txt', 'results/phase_transition/phase_transition.png')
 
 
 
