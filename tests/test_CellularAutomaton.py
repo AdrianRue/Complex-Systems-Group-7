@@ -14,7 +14,7 @@ class TestCellularAutomaton:
         agent_probs = [0.85, 0.15]  
         proto_size = 20
         star_size = 100
-        return CellularAutomaton(size, agent_probs, proto_size, star_size)
+        return CellularAutomaton(size, agent_probs, proto_size, star_size, 50)
 
     def test_initialization(self, automaton):
         assert automaton.size > 0
@@ -22,7 +22,7 @@ class TestCellularAutomaton:
         assert automaton.star_size > 0
         assert isinstance(automaton.groups, list)
         assert automaton.star == 10
-        assert automaton.dissipation == 30
+        assert automaton.dissipation == 50
 
     def test_get_density(self, automaton):
         i, j = 5, 5 

@@ -20,7 +20,13 @@ Our null hypothesis (H0) states:
 ## Getting Started
 To run this simulation, you will need Python and the following dependencies installed:
 ```
-pip install numpy matplotlib
+pip install -r requirements.txt
+```
+
+### Testing
+To test the functionalities run:
+```
+pytest
 ```
 
 ### File Descriptions
@@ -31,6 +37,24 @@ pip install numpy matplotlib
 `Group.py`: Contains the Group class for managing collections of agents.
 
 `main.py`: The main script for initializing and running the simulation.
+
+### Usage
+```
+usage: main.py [-h] [--one ONE] [--N N] [--prob_gas PROB_GAS] [--proto_size PROTO_SIZE] [--star_size STAR_SIZE] [--steps_dissipating STEPS_DISSIPATING]
+
+options:
+  -h, --help            show this help message and exit
+  --one ONE             Run one sim or run all sims (default: True)
+  --N N                 Grid size (default: 100)
+  --prob_gas PROB_GAS   Probability of cell being a gas particle (default: 0.1)
+  --proto_size PROTO_SIZE
+                        Size needed to form proto star (default: 20)
+  --star_size STAR_SIZE
+                        Size needed to form star (default: 100)
+  --steps_dissipating STEPS_DISSIPATING
+                        Steps dissipation (default: 50)
+```
+
 
 ### Results
 the results of the simulation are depicted in the `Resultdisplay.GIF` file and `results`directory, illustrating the progression of star formation in the CA grid.

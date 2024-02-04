@@ -9,6 +9,7 @@ from CellularAutomaton import CellularAutomaton
 
 # Initialize the argument parser
 parser = argparse.ArgumentParser(description='2D Cellular Automaton Star Formation Simulation', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('--one', type=bool, default=True, help='Run one sim or run all sims')
 parser.add_argument('--N', type=int, default=100, help='Grid size')
 parser.add_argument('--prob_gas', type=float, default=0.1, help='Probability of cell being a gas particle')
 parser.add_argument('--proto_size', type=int, default=20, help='Size needed to form proto star')
@@ -84,7 +85,6 @@ def simulate(N, prob_gas, proto_size, star_size, steps_dissipating):
     
     # To save the animation using Pillow as a gif
     ani.save(f'results/gifs/density_{prob_gas}.gif', writer=animation.PillowWriter(fps=15))
-    # plt.show()
 
 def check_dist(prob_gas):
     data = counts[3]
@@ -120,8 +120,11 @@ def check_pearson(probs_gas):
 
 
 if __name__ == "__main__":
-    probs_gas = np.arange(0.02, 0.21, 0.045)
-    # probs_gas = [0.20]
+    if args.one == True:
+        probs_gas = [0.15]
+    else:
+        probs_gas = np.arange(0.02, 0.21, 0.045)
+
     print(probs_gas)
     star_formations = []
     for prob_gas in probs_gas:

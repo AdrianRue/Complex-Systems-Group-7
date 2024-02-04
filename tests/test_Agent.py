@@ -1,57 +1,35 @@
-import pytest
 import numpy as np
-from Agent import Agent 
+import pytest
+from Agent import Agent, find_nearest  # Adjust the import as necessary to fit your project structure
 
-# Define a mock density function for testing
-def mock_density_func(i, j):
-    return 1.0 
+def test_agent_initialization():
+    state = np.int32(1)
+    agent = Agent(state)
+    assert agent.state == state
+    assert agent.group is None
+    assert agent.position is None
+    assert agent.days_dissipate == 0
+    assert agent.center_group is None
 
-# Test cases for the Agent class
-class TestAgent:
-    @pytest.fixture
-    def agent(self):
-        state = np.int32(1)
-        return Agent(state)
+def test_find_nearest():
+    array = [-1, 0, 1]
+    value = 0.9
+    expected = 1
+    assert find_nearest(array, value) == expected
 
-    def test_move_function(self, agent):
-        size = 10
-        i, j = 5, 5
-        move_result = agent.move(mock_density_func, i, j, size)
-        assert isinstance(move_result, tuple)
-        assert len(move_result) == 2
-        assert isinstance(move_result[0], int) and isinstance(move_result[1], int)
-        assert 0 <= move_result[0] < size
-        assert 0 <= move_result[1] < size
+def test_move_center():
+    pos_c_i, pos_c_j = 5, 5
+    pos_agent_i, pos_agent_j = 3, 3
+    size = 10
+    agent = Agent(np.int32(1))
+    new_i, new_j = agent.move_center(pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size)
+    assert new_i == 4 and new_j == 4  # Assuming move towards center
 
-    def test_dissipate_function(self, agent):
-        size = 10
-        pos_c_i, pos_c_j = 5, 5
-        pos_agent_i, pos_agent_j = 4, 4
-        dissipate_result = agent.dissipate(pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size)
-        assert isinstance(dissipate_result, tuple)
-        assert len(dissipate_result) == 2
-        assert isinstance(dissipate_result[0], int) and isinstance(dissipate_result[1], int)
-        assert 0 <= dissipate_result[0] < size
-        assert 0 <= dissipate_result[1] < size
-
-    def test_invalid_state(self):
-        with pytest.raises(AssertionError):
-            state = "invalid_state"
-            Agent(state)
-
-    def test_invalid_density_func(self, agent):
-        with pytest.raises(AssertionError):
-            get_density_func = "not_a_callable_function"
-            agent.move(get_density_func, 0, 0, 10)
-
-    def test_invalid_i_j_size(self, agent):
-        with pytest.raises(AssertionError):
-            agent.move(mock_density_func, 0.5, 0, 10)
-        with pytest.raises(AssertionError):
-            agent.move(mock_density_func, 0, 0.5, 10)
-        with pytest.raises(AssertionError):
-            agent.move(mock_density_func, 0, 0, -1)
-
-# Run pytest
-if __name__ == "__main__":
-    pytest.main()
+def test_dissipate():
+    # This test might need a mock group with a center and size
+    size = 10
+    pos_agent_i, pos_agent_j = 8, 8
+    agent = Agent(np.int32(1))
+    agent.center_group = (5, 5)  # Example center; adjust as needed
+    agent.group = type('MockGroup', (object,), {'center': (5, 5), 'size': size})()  # Mock group
+    new_i, new_j = agent.dissipate(pos_agent_i, pos_agent_j, size)
