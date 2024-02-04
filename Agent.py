@@ -63,6 +63,7 @@ class Agent:
                 densities.append(density_grid[ni, nj] * (grid[ni, nj].state == 0))
         densities_sum = np.sum(densities)
 
+        # Probabilistic movement when the agent is in state 1
         if self.state == 1:
             if densities_sum == 0:
                 direction = np.random.choice(range(len(movement)))
@@ -73,13 +74,13 @@ class Agent:
 
             return movement[direction]
 
+        # Deterministic movement when the agent is in state 2 or 3
         else:
             direction = np.argmax(densities)
             movement = movement[direction]
 
             if density_grid[i, j] < density_grid[movement]:
                 return movement
-
 
 
     def move_center(self, pos_c_i, pos_c_j, pos_agent_i, pos_agent_j, size):
@@ -172,11 +173,6 @@ class Agent:
         else:
             pos_agent_j += movement[1]
 
-        
-            
-        # New position of the agent
-        # pos_agent_i += movement[0]
-        # pos_agent_j += movement[1]
 
         # Wrap around if out of bounds
         pos_agent_i %= size
